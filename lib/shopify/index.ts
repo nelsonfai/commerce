@@ -145,7 +145,7 @@ const reshapeCollection = (
 
   return {
     ...collection,
-    path: `/search/${collection.handle}`
+    path: `/collection/${collection.handle}`
   };
 };
 
@@ -221,8 +221,13 @@ export async function createCart(): Promise<Cart> {
   return reshapeCart(res.body.data.cartCreate.cart);
 }
 
+
 export async function addToCart(
-  lines: { merchandiseId: string; quantity: number }[]
+  lines: { 
+    merchandiseId: string; 
+    quantity: number; 
+    attributes?: { key: string; value: string }[];
+  }[]
 ): Promise<Cart> {
   const cartId = (await cookies()).get('cartId')?.value!;
   const res = await shopifyFetch<ShopifyAddToCartOperation>({
@@ -249,7 +254,12 @@ export async function removeFromCart(lineIds: string[]): Promise<Cart> {
 }
 
 export async function updateCart(
-  lines: { id: string; merchandiseId: string; quantity: number }[]
+  lines: { 
+    id: string; 
+    merchandiseId: string; 
+    quantity: number;
+    attributes?: { key: string; value: string }[];
+  }[]
 ): Promise<Cart> {
   const cartId = (await cookies()).get('cartId')?.value!;
   const res = await shopifyFetch<ShopifyUpdateCartOperation>({
@@ -303,11 +313,13 @@ export async function getCollection(
 export async function getCollectionProducts({
   collection,
   reverse,
-  sortKey
+  sortKey,
+  first
 }: {
   collection: string;
   reverse?: boolean;
   sortKey?: string;
+  first?: number;
 }): Promise<Product[]> {
   'use cache';
   cacheTag(TAGS.collections, TAGS.products);
@@ -318,7 +330,8 @@ export async function getCollectionProducts({
     variables: {
       handle: collection,
       reverse,
-      sortKey: sortKey === 'CREATED_AT' ? 'CREATED' : sortKey
+      sortKey: sortKey === 'CREATED_AT' ? 'CREATED' : sortKey,
+      first: first
     }
   });
 
@@ -332,7 +345,10 @@ export async function getCollectionProducts({
   );
 }
 
-export async function getCollections(): Promise<Collection[]> {
+
+
+
+export async function getCollections(includeAllCategory = true): Promise<Collection[]> {
   'use cache';
   cacheTag(TAGS.collections);
   cacheLife('days');
@@ -340,28 +356,32 @@ export async function getCollections(): Promise<Collection[]> {
   const res = await shopifyFetch<ShopifyCollectionsOperation>({
     query: getCollectionsQuery
   });
+
   const shopifyCollections = removeEdgesAndNodes(res.body?.data?.collections);
-  const collections = [
-    {
-      handle: '',
-      title: 'All',
-      description: 'All products',
-      seo: {
-        title: 'All',
-        description: 'All products'
-      },
-      path: '/search',
-      updatedAt: new Date().toISOString()
-    },
-    // Filter out the `hidden` collections.
-    // Collections that start with `hidden-*` need to be hidden on the search page.
-    ...reshapeCollections(shopifyCollections).filter(
-      (collection) => !collection.handle.startsWith('hidden')
-    )
-  ];
+  const reshapedCollections = reshapeCollections(shopifyCollections).filter(
+    (collection) => !collection.handle.startsWith('hidden')
+  );
+
+  const collections = includeAllCategory
+    ? [
+        {
+          handle: '',
+          title: 'All',
+          description: 'All products',
+          seo: {
+            title: 'All',
+            description: 'All products'
+          },
+          path: '/collection',
+          updatedAt: new Date().toISOString()
+        },
+        ...reshapedCollections
+      ]
+    : reshapedCollections;
 
   return collections;
 }
+
 
 export async function getMenu(handle: string): Promise<Menu[]> {
   'use cache';
@@ -380,7 +400,7 @@ export async function getMenu(handle: string): Promise<Menu[]> {
       title: item.title,
       path: item.url
         .replace(domain, '')
-        .replace('/collections', '/search')
+       // .replace('/collections', '/search')
         .replace('/pages', '')
     })) || []
   );
@@ -435,23 +455,36 @@ export async function getProductRecommendations(
   return reshapeProducts(res.body.data.productRecommendations);
 }
 
+
+
+
+
 export async function getProducts({
   query,
   reverse,
-  sortKey
+  sortKey,
+  excludeHidden = true
 }: {
   query?: string;
   reverse?: boolean;
   sortKey?: string;
+  excludeHidden?: boolean;
 }): Promise<Product[]> {
   'use cache';
   cacheTag(TAGS.products);
   cacheLife('days');
 
+  // If we want to exclude hidden products, modify the query to exclude them
+  let modifiedQuery = query;
+  if (excludeHidden) {
+    const hiddenTagFilter = `-tag:${HIDDEN_PRODUCT_TAG}`;
+    modifiedQuery = query ? `${query} AND ${hiddenTagFilter}` : hiddenTagFilter;
+  }
+
   const res = await shopifyFetch<ShopifyProductsOperation>({
     query: getProductsQuery,
     variables: {
-      query,
+      query: modifiedQuery,
       reverse,
       sortKey
     }

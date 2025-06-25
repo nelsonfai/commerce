@@ -1,5 +1,5 @@
 import { FilterLayout } from 'components/layout/filter-layout';
-import ChildrenWrapper from './children-wrapper';
+//import ChildrenWrapper from './children-wrapper';
 
 export default function SearchLayout({
   children
@@ -8,10 +8,10 @@ export default function SearchLayout({
 }) {
   return (
     <FilterLayout
-      showCollections={true}
-      showSorting={true}
+      showCollections={false}
+      showSorting={false}
     >
-      <ChildrenWrapper>{children}</ChildrenWrapper>
+      <>{children}</>
     </FilterLayout>
   );
 }

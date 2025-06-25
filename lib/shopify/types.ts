@@ -19,6 +19,7 @@ export type CartProduct = {
   featuredImage: Image;
 };
 
+
 export type CartItem = {
   id: string | undefined;
   quantity: number;
@@ -34,6 +35,10 @@ export type CartItem = {
     }[];
     product: CartProduct;
   };
+  attributes: {
+    key: string;
+    value: string;
+  }[];
 };
 
 export type Collection = ShopifyCollection & {
@@ -148,6 +153,7 @@ export type ShopifyCreateCartOperation = {
   data: { cartCreate: { cart: ShopifyCart } };
 };
 
+
 export type ShopifyAddToCartOperation = {
   data: {
     cartLinesAdd: {
@@ -159,6 +165,10 @@ export type ShopifyAddToCartOperation = {
     lines: {
       merchandiseId: string;
       quantity: number;
+      attributes?: {
+        key: string;
+        value: string;
+      }[];
     }[];
   };
 };
@@ -175,6 +185,7 @@ export type ShopifyRemoveFromCartOperation = {
   };
 };
 
+
 export type ShopifyUpdateCartOperation = {
   data: {
     cartLinesUpdate: {
@@ -187,6 +198,10 @@ export type ShopifyUpdateCartOperation = {
       id: string;
       merchandiseId: string;
       quantity: number;
+      attributes?: {
+        key: string;
+        value: string;
+      }[];
     }[];
   };
 };
@@ -210,6 +225,7 @@ export type ShopifyCollectionProductsOperation = {
     handle: string;
     reverse?: boolean;
     sortKey?: string;
+    first?: number;
   };
 };
 

@@ -1,5 +1,4 @@
 'use server';
-
 import { TAGS } from 'lib/constants';
 import {
   addToCart,
@@ -14,14 +13,21 @@ import { redirect } from 'next/navigation';
 
 export async function addItem(
   prevState: any,
-  selectedVariantId: string | undefined
+  selectedVariantId: string | undefined,
+  attributes?: { key: string; value: string }[]
 ) {
   if (!selectedVariantId) {
     return 'Error adding item to cart';
   }
 
   try {
-    await addToCart([{ merchandiseId: selectedVariantId, quantity: 1 }]);
+    const lineItem = {
+      merchandiseId: selectedVariantId,
+      quantity: 1,
+      ...(attributes && attributes.length > 0 && { attributes })
+    };
+    
+    await addToCart([lineItem]);
     revalidateTag(TAGS.cart);
   } catch (e) {
     return 'Error adding item to cart';
@@ -56,9 +62,10 @@ export async function updateItemQuantity(
   payload: {
     merchandiseId: string;
     quantity: number;
+    attributes?: { key: string; value: string }[];
   }
 ) {
-  const { merchandiseId, quantity } = payload;
+  const { merchandiseId, quantity, attributes } = payload;
 
   try {
     const cart = await getCart();
@@ -75,17 +82,24 @@ export async function updateItemQuantity(
       if (quantity === 0) {
         await removeFromCart([lineItem.id]);
       } else {
-        await updateCart([
-          {
-            id: lineItem.id,
-            merchandiseId,
-            quantity
-          }
-        ]);
+        const updateData = {
+          id: lineItem.id,
+          merchandiseId,
+          quantity,
+          ...(attributes && attributes.length > 0 && { attributes })
+        };
+        
+        await updateCart([updateData]);
       }
     } else if (quantity > 0) {
       // If the item doesn't exist in the cart and quantity > 0, add it
-      await addToCart([{ merchandiseId, quantity }]);
+      const addData = {
+        merchandiseId,
+        quantity,
+        ...(attributes && attributes.length > 0 && { attributes })
+      };
+      
+      await addToCart([addData]);
     }
 
     revalidateTag(TAGS.cart);

@@ -10,32 +10,56 @@ function FilterItemList({ list }: { list: ListItem[] }) {
   return (
     <>
       {list.map((item: ListItem, i) => (
-        <FilterItem key={i} item={item} />
+        
+      
+        <FilterItem key={i} item={item} /> 
+
+      
       ))}
     </>
   );
 }
 
-export default function FilterList({ list, title }: { list: ListItem[]; title?: string }) {
+export default function FilterList({ 
+  list, 
+  title 
+}: { 
+  list: ListItem[]; 
+  title?: string; 
+}) {
   return (
-    <>
-      <nav>
-        {title ? (
-          <h3 className="hidden text-xs text-neutral-500 md:block dark:text-neutral-400">
-            {title}
-          </h3>
-        ) : null}
-        <ul className="hidden md:block">
-          <Suspense fallback={null}>
-            <FilterItemList list={list} />
-          </Suspense>
-        </ul>
-        <ul className="md:hidden">
-          <Suspense fallback={null}>
-            <FilterItemDropdown list={list} />
-          </Suspense>
-        </ul>
-      </nav>
-    </>
+    <nav className="w-full">
+      {title && (
+        <h3 className="text-xs font-medium text-neutral-500 dark:text-neutral-400 mb-2 hidden md:block">
+          {title}
+        </h3>
+      )}
+      
+      {/* Desktop: Horizontal pill layout for collections, dropdown for sorting */}
+      <div className="hidden md:block">
+        {title === "" ? (
+          // Collections: Horizontal pills
+          <div className="flex gap-2 overflow-x-auto pb-2">
+            <Suspense fallback={null}>
+              <FilterItemList list={list} />
+            </Suspense>
+          </div>
+        ) : (
+          // Sorting: Dropdown
+          <div className="w-full">
+            <Suspense fallback={null}>
+              <FilterItemDropdown list={list} />
+            </Suspense>
+          </div>
+        )}
+      </div>
+
+      {/* Mobile: Always use dropdown */}
+      <div className="md:hidden">
+        <Suspense fallback={null}>
+          <FilterItemDropdown list={list} />
+        </Suspense>
+      </div>
+    </nav>
   );
 }

@@ -6,6 +6,7 @@ import { createUrl } from 'lib/utils';
 import Link from 'next/link';
 import { usePathname, useSearchParams } from 'next/navigation';
 import type { ListItem, PathFilterItem } from '.';
+import path from 'path';
 
 function PathFilterItem({ item }: { item: PathFilterItem }) {
   const pathname = usePathname();
