@@ -3,11 +3,13 @@
   "scripts": {
     "dev": "next dev --turbopack",
     "build": "npm install --legacy-peer-deps --force && next build",
-    "vercel-build": "npm install --legacy-peer-deps --force && next build",
+    "vercel-build": "next build",
     "start": "next start",
     "prettier": "prettier --write --ignore-unknown .",
     "prettier:check": "prettier --check --ignore-unknown .",
-    "test": "pnpm prettier:check"
+    "test": "pnpm prettier:check",
+    "postinstall": "npm install --legacy-peer-deps --force"
+
 
   },
   "dependencies": {
