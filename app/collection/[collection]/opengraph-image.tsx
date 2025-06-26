@@ -1,3 +1,4 @@
+// app/collection/[collection]/opengraph-image.tsx
 import OpengraphImage from 'components/opengraph-image';
 import { getCollection } from 'lib/shopify';
 

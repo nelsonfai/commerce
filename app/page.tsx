@@ -1,4 +1,5 @@
-import { Carousel } from 'components/carousel';
+// app/page.tsx
+
 import { ThreeItemGrid } from 'components/grid/featured-products';
 import Footer from 'components/layout/footer';
 import ImageCarouselSection from 'components/Hero';
@@ -15,7 +16,6 @@ export default function HomePage() {
     <>
     <ImageCarouselSection />
       <ThreeItemGrid />
-      <Carousel />
       <Footer />
     </>
   );

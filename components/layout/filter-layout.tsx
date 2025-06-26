@@ -49,7 +49,7 @@ export function FilterLayout({
                     <svg className="w-4 h-4 text-neutral-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                       <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 11H5m14-7H5m14 14H5" />
                     </svg>
-                    <span className="text-sm font-medium text-neutral-700 dark:text-neutral-300">Filter by Collection</span>
+                    <span className="text-sm font-medium text-neutral-700 dark:text-neutral-300">Filter by Collection seaerch</span>
                   </div>
                   <Suspense fallback={<FilterSkeleton />}>
                     <Collections />

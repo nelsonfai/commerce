@@ -2,10 +2,10 @@ import Footer from 'components/layout/footer';
 import Collections from 'components/layout/search/collections';
 import FilterList from 'components/layout/search/filter';
 import { sorting } from 'lib/constants';
-import ChildrenWrapper from './children-wrapper';
+import ChildrenWrapper from '../children-wrapper';
 import { Suspense } from 'react';
 
-export default function SearchLayout({
+export default function CollectionLayout({
   children
 }: {
   children: React.ReactNode;
@@ -22,7 +22,7 @@ export default function SearchLayout({
                 <svg className="w-4 h-4 text-neutral-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 11H5m14-7H5m14 14H5" />
                 </svg>
-                <span className="text-sm font-medium text-neutral-700 dark:text-neutral-300">Filter by Collection iii</span>
+                <span className="text-sm font-medium text-neutral-700 dark:text-neutral-300">Filter by Collection</span>
               </div>
               <Suspense fallback={<FilterSkeleton />}>
                 <Collections />
@@ -40,7 +40,9 @@ export default function SearchLayout({
                 </svg>
                 <span className="text-sm font-medium text-neutral-700 dark:text-neutral-300">Sort Products</span>
               </div>
-              <FilterList list={sorting} title="" />
+              <Suspense fallback={<div className="h-10 bg-neutral-200 dark:bg-neutral-700 rounded animate-pulse" />}>
+                <FilterList list={sorting} title="" />
+              </Suspense>
             </div>
           </div>
         </div>

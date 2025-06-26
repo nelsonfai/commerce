@@ -1,3 +1,4 @@
+// app/collection/page.tsx
 import type { Metadata } from 'next';
 
 import Grid from 'components/grid';

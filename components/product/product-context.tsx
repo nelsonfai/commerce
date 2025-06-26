@@ -1,7 +1,7 @@
 'use client';
 
 import { useRouter, useSearchParams } from 'next/navigation';
-import React, { createContext, useContext, useMemo, useOptimistic } from 'react';
+import React, { createContext, useContext, useMemo, useOptimistic, Suspense } from 'react';
 
 type ProductState = {
   [key: string]: string;
@@ -18,7 +18,16 @@ type ProductContextType = {
 const ProductContext = createContext<ProductContextType | undefined>(undefined);
 
 export function ProductProvider({ children }: { children: React.ReactNode }) {
+  return (
+    <Suspense fallback={null}>
+      <ProductProviderInner>{children}</ProductProviderInner>
+    </Suspense>
+  );
+}
+
+function ProductProviderInner({ children }: { children: React.ReactNode }) {
   const searchParams = useSearchParams();
+  const router = useRouter();
 
   const getInitialState = () => {
     const params: ProductState = {};

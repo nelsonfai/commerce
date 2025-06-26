@@ -1,10 +1,11 @@
+// app/layout.tsx
 import { CartProvider } from 'components/cart/cart-context';
 import { ProductProvider } from 'components/product/product-context';
 import { Navbar } from 'components/layout/navbar';
 import { WelcomeToast } from 'components/welcome-toast';
 import { Inter } from 'next/font/google';
 import { getCart } from 'lib/shopify';
-import { ReactNode } from 'react';
+import { ReactNode, Suspense } from 'react';
 import { Toaster } from 'sonner';
 import './globals.css';
 import { baseUrl } from 'lib/utils';
@@ -40,9 +41,13 @@ export default async function RootLayout({
       <body className="bg-white text-black font-sans selection:bg-teal-300 dark:bg-neutral-900 dark:text-white dark:selection:bg-pink-500 dark:selection:text-white">
         <CartProvider cartPromise={cart}>
           <ProductProvider>
-            <Navbar />
+            <Suspense fallback={<div>Loading navigation...</div>}>
+              <Navbar />
+            </Suspense>
             <main>
-              {children}
+              <Suspense fallback={<div>Loading...</div>}>
+                {children}
+              </Suspense>
               <Toaster closeButton />
               <WelcomeToast />
             </main>
