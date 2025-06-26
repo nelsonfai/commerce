@@ -1,20 +1,25 @@
+import type { Metadata } from 'next';
+
 import Link from 'next/link';
 import Grid from 'components/grid';
 import ProductGridItems from 'components/layout/product-grid-items';
 import { defaultSort, sorting } from 'lib/constants';
 import { getCollectionProducts, getCollections } from 'lib/shopify';
 
-export const metadata = {
+export const metadata :Metadata = {
   title: 'Store',
   description: 'Browse all products in our store by category.'
 };
 
-export default async function StorePage({
-  searchParams
-}: {
-  searchParams?: { [key: string]: string | string[] | undefined };
-}) {
-  const { sort } = searchParams as { [key: string]: string };
+type PageProps = {
+  searchParams?: Promise<{ [key: string]: string | string[] | undefined }>;
+};
+
+export default async function StorePage({ searchParams }: PageProps) {
+  // Await the searchParams promise
+  const resolvedSearchParams = searchParams ? await searchParams : {};
+  
+  const { sort } = resolvedSearchParams as { [key: string]: string };
   const { sortKey, reverse } = sorting.find((item) => item.slug === sort) || defaultSort;
 
   // Get all collections

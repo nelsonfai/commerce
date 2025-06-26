@@ -1,11 +1,12 @@
 // app/subscription-box/page.tsx
+import React from 'react';
 import { getCollectionProducts } from 'lib/shopify';
 import SubscriptionBoxClient from './getstarted-client';
 import { Metadata } from 'next';
 
 interface SubscriptionBoxPageProps {}
 
-export default async function SubscriptionBoxPage(): Promise<JSX.Element> {
+export default async function SubscriptionBoxPage(): Promise<React.JSX.Element> {
   try {
     const subscriptionHandles = [
       'hidden-subscription-boxes',

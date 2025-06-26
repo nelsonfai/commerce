@@ -5,7 +5,8 @@ import { SelectedItem, Snack } from 'types/snack';
 import Link from 'next/link';
 import { AddToCart } from 'components/cart/add-to-cart';
 import { useRouter } from 'next/navigation';
-// Type for Shopify Product (add this to your types if not already there)
+import { Product } from 'lib/shopify/types';
+
 interface ShopifyProduct {
   id: string;
   title: string;
@@ -218,7 +219,7 @@ const ProductCard: React.FC<ProductCardProps> = ({
               </div>
             ) : (
               <div className="flex items-center">
-                <AddToCart product={product}  compact={true} showQuantityControls={true}/>
+                <AddToCart product={product as Product}  compact={true} />
                 <button
                   className="px-2 py-2 bg-[#f5f5f5] rounded-lg text-[#181611] font-bold hover:bg-gray-200 transition-colors ml-2"
                   onClick={openModal}

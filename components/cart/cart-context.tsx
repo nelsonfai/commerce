@@ -92,7 +92,9 @@ function createOrUpdateCartItem(
         title: product.title,
         featuredImage: product.featuredImage
       }
-    }
+    },
+    attributes:[]
+
   };
 }
 

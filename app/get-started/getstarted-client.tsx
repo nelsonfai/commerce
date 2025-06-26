@@ -10,6 +10,7 @@ import {
 } from '@heroicons/react/24/outline';
 import ProductCard from 'components/product/product-card';
 import {addItem}from 'components/cart/actions';
+import { Product } from 'lib/shopify/types';
 
 // Types
 interface ProductVariant {
@@ -26,23 +27,7 @@ interface ProductVariant {
   }>;
 }
 
-interface Product {
-  id: string;
-  title: string;
-  description: string;
-  handle: string;
-  featuredImage?: {
-    url: string;
-    altText: string;
-  };
-  priceRange: {
-    minVariantPrice: {
-      amount: string;
-      currencyCode: string;
-    };
-  };
-  variants?: ProductVariant[];
-}
+
 
 interface SubscriptionBox extends Product {
   variants: ProductVariant[];
