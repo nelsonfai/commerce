@@ -2,9 +2,8 @@
   "private": true,
   "scripts": {
     "dev": "next dev --turbopack",
-    "build": "npm install --legacy-peer-deps && next build",
-    "vercel-build": "npm install --legacy-peer-deps && next build",
-
+    "build": "npm install --legacy-peer-deps --force && next build",
+    "vercel-build": "npm install --legacy-peer-deps --force && next build",
     "start": "next start",
     "prettier": "prettier --write --ignore-unknown .",
     "prettier:check": "prettier --check --ignore-unknown .",
@@ -33,5 +32,6 @@
     "prettier-plugin-tailwindcss": "^0.6.11",
     "tailwindcss": "^4.0.14",
     "typescript": "5.8.2"
+
   }
 }
