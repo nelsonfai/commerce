@@ -17,6 +17,7 @@ export default async function SubscriptionBoxPage(): Promise<React.JSX.Element> 
     // Find working subscription collection handle
     for (const handle of subscriptionHandles) {
       const result = await getCollectionProducts({ collection: "hidden-subscription-boxes" });
+      console.log('Get Collection Products', result);
       if (result?.length > 0) {
         subscriptionBoxes = result;
         break;
@@ -34,7 +35,7 @@ export default async function SubscriptionBoxPage(): Promise<React.JSX.Element> 
 
     return (
       <SubscriptionBoxClient 
-        subscriptionBoxes={subscriptionBoxes || featuredProducts}
+        subscriptionBoxes={subscriptionBoxes || []}
         featuredProducts={featuredProducts}
       />
     );

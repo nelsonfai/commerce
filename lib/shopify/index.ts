@@ -197,12 +197,14 @@ const reshapeProduct = (
   };
 };
 
-const reshapeProducts = (products: ShopifyProduct[]) => {
+
+
+const reshapeProducts = (products: ShopifyProduct[], filterHiddenProducts: boolean = true) => {
   const reshapedProducts = [];
 
   for (const product of products) {
     if (product) {
-      const reshapedProduct = reshapeProduct(product);
+      const reshapedProduct = reshapeProduct(product, filterHiddenProducts);
 
       if (reshapedProduct) {
         reshapedProducts.push(reshapedProduct);
@@ -310,7 +312,7 @@ export async function getCollection(
   return reshapeCollection(res.body.data.collection);
 }
 
-export async function getCollectionProducts({
+export async function fgetCollectionProducts({
   collection,
   reverse,
   sortKey,
@@ -341,12 +343,49 @@ export async function getCollectionProducts({
   }
 
   return reshapeProducts(
-    removeEdgesAndNodes(res.body.data.collection.products)
+    removeEdgesAndNodes(res.body.data.collection.products),
+    false
   );
 }
 
+export async function getCollectionProducts({
+  collection,
+  reverse,
+  sortKey,
+  first
+}: {
+  collection: string;
+  reverse?: boolean;
+  sortKey?: string;
+  first?: number;
+}): Promise<Product[]> {
+  'use cache';
+  cacheTag(TAGS.collections, TAGS.products);
+  cacheLife('days');
 
+  const res = await shopifyFetch<ShopifyCollectionProductsOperation>({
+    query: getCollectionProductsQuery,
+    variables: {
+      handle: collection,
+      reverse,
+      sortKey: sortKey === 'CREATED_AT' ? 'CREATED' : sortKey,
+      first: first
+    }
+  });
 
+  if (!res.body.data.collection) {
+    console.log(`No collection found for \`${collection}\``);
+    return [];
+  }
+
+  // Check if this is a hidden collection - if so, don't filter hidden products
+  const isHiddenCollection = collection.startsWith('hidden-');
+  
+  return reshapeProducts(
+    removeEdgesAndNodes(res.body.data.collection.products),
+    !isHiddenCollection // filterHiddenProducts = false for hidden collections
+  );
+}
 
 export async function getCollections(includeAllCategory = true): Promise<Collection[]> {
   'use cache';
@@ -358,9 +397,10 @@ export async function getCollections(includeAllCategory = true): Promise<Collect
   });
 
   const shopifyCollections = removeEdgesAndNodes(res.body?.data?.collections);
-  const reshapedCollections = reshapeCollections(shopifyCollections).filter(
-    (collection) => !collection.handle.startsWith('hidden')
-  );
+  //console.log('shopifyCollections', shopifyCollections);
+  const reshapedCollections = reshapeCollections(shopifyCollections)
+  .filter((collection) => !collection.handle.startsWith('hidden'))
+
 
   const collections = includeAllCategory
     ? [
@@ -388,22 +428,46 @@ export async function getMenu(handle: string): Promise<Menu[]> {
   cacheTag(TAGS.collections);
   cacheLife('days');
 
-  const res = await shopifyFetch<ShopifyMenuOperation>({
-    query: getMenuQuery,
-    variables: {
-      handle
-    }
-  });
+  // Default fallback menu items
+  const defaultMenuItems: Menu[] = [
+    { title: 'Home', path: '/' },
+    { title: 'Store', path: '/search' }, // or '/store' if you have a dedicated store page
+    { title: 'Search', path: '/search' },
+  ];
 
-  return (
-    res.body?.data?.menu?.items.map((item: { title: string; url: string }) => ({
+  try {
+    const res = await shopifyFetch<ShopifyMenuOperation>({
+      query: getMenuQuery,
+      variables: {
+        handle
+      }
+    });
+
+    const shopifyMenuItems = res.body?.data?.menu?.items.map((item: { title: string; url: string }) => ({
       title: item.title,
       path: item.url
         .replace(domain, '')
-       // .replace('/collections', '/search')
+        .replace('/collections', '/search')
         .replace('/pages', '')
-    })) || []
-  );
+    })) || [];
+
+    // If we have Shopify menu items, combine them with defaults
+    // Remove duplicates by checking if default items already exist in Shopify menu
+    if (shopifyMenuItems.length > 0) {
+      const existingPaths = new Set(shopifyMenuItems.map(item => item.path));
+      const uniqueDefaults = defaultMenuItems.filter(item => !existingPaths.has(item.path));
+      
+      return [...uniqueDefaults, ...shopifyMenuItems];
+    }
+
+    // If no Shopify menu items, return defaults
+    return defaultMenuItems;
+
+  } catch (error) {
+    console.error('Error fetching menu:', error);
+    // Return default menu items if there's an error
+    return defaultMenuItems;
+  }
 }
 
 export async function getPage(handle: string): Promise<Page> {

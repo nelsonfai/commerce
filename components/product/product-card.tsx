@@ -34,6 +34,7 @@ interface ProductCardProps {
   onUpdateQuantity?: (id: string, quantity: number) => void;
   className?: string;
   cardStyle?: 'default' | 'featured';
+  allowClick?: boolean;
 }
 
 const ProductCard: React.FC<ProductCardProps> = ({ 
@@ -44,7 +45,8 @@ const ProductCard: React.FC<ProductCardProps> = ({
   onAddToBox, 
   onUpdateQuantity,
   className = "",
-  cardStyle = "default"
+  cardStyle = "default",
+  allowClick = true
 }) => {
   const [isModalOpen, setIsModalOpen] = useState(false);
   const router = useRouter();
@@ -94,6 +96,15 @@ const ProductCard: React.FC<ProductCardProps> = ({
   const openModal = () => setIsModalOpen(true);
   const closeModal = () => setIsModalOpen(false);
   const openProductPage = () => router.push(`/product/${transformedSnack.handle}`);
+
+  const handleImageClick = () => {
+    if (!allowClick) {
+      openModal();
+    } else {
+      return
+      openProductPage();
+    }
+  };
 
   // Featured card style (for home page)
   if (cardStyle === "featured") {
@@ -172,8 +183,8 @@ const ProductCard: React.FC<ProductCardProps> = ({
         <div
           className="aspect-[4/3] bg-cover bg-center cursor-pointer"
           style={{ backgroundImage: `url("${transformedSnack.image}")` }}
-          onClick={openProductPage}
-/>
+          onClick={handleImageClick}
+        />
         <div className="p-4">
           <div className="flex justify-between items-start mb-2">
             <h3 className="text-lg font-bold text-[#181611] line-clamp-2 flex-1 mr-2 h-14 leading-7">{transformedSnack.name}</h3>

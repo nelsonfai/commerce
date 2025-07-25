@@ -9,7 +9,10 @@ import { Bars3Icon, XMarkIcon } from '@heroicons/react/24/outline';
 import { Menu } from 'lib/shopify/types';
 import Search, { SearchSkeleton } from './search';
 
-export default function MobileMenu({ menu }: { menu: Menu[] }) {
+// Separate component that uses useSearchParams
+function MobileMenuContent({ menu }: { menu: Menu[] }) {
+  const pathname = usePathname();
+  const searchParams = useSearchParams();
   const [isOpen, setIsOpen] = useState(false);
   const openMobileMenu = () => setIsOpen(true);
   const closeMobileMenu = () => setIsOpen(false);
@@ -22,7 +25,11 @@ export default function MobileMenu({ menu }: { menu: Menu[] }) {
     };
     window.addEventListener('resize', handleResize);
     return () => window.removeEventListener('resize', handleResize);
-  }, []);
+  }, [isOpen]);
+
+  useEffect(() => {
+    setIsOpen(false);
+  }, [pathname, searchParams]);
 
   return (
     <>
@@ -33,7 +40,6 @@ export default function MobileMenu({ menu }: { menu: Menu[] }) {
       >
         <Bars3Icon className="h-4" />
       </button>
-
       <Transition show={isOpen}>
         <Dialog onClose={closeMobileMenu} className="relative z-50">
           <Transition.Child
@@ -47,7 +53,6 @@ export default function MobileMenu({ menu }: { menu: Menu[] }) {
           >
             <div className="fixed inset-0 bg-black/30" aria-hidden="true" />
           </Transition.Child>
-
           <Transition.Child
             as={Fragment}
             enter="transition-all ease-in-out duration-300"
@@ -58,9 +63,35 @@ export default function MobileMenu({ menu }: { menu: Menu[] }) {
             leaveTo="translate-x-[-100%]"
           >
             <Dialog.Panel className="fixed bottom-0 left-0 right-0 top-0 flex h-full w-full flex-col bg-white pb-6 dark:bg-black">
-              <Suspense fallback={<MobileMenuSkeleton />}>
-                <MobileMenuInner menu={menu} close={closeMobileMenu} />
-              </Suspense>
+              <div className="p-4">
+                <button
+                  className="mb-4 flex h-11 w-11 items-center justify-center rounded-md border border-neutral-200 text-black transition-colors dark:border-neutral-700 dark:text-white"
+                  onClick={closeMobileMenu}
+                  aria-label="Close mobile menu"
+                >
+                  <XMarkIcon className="h-6" />
+                </button>
+
+                <div className="mb-4 w-full">
+                  <Suspense fallback={<SearchSkeleton />}>
+                    <Search />
+                  </Suspense>
+                </div>
+                {menu.length ? (
+                  <ul className="flex w-full flex-col">
+                    {menu.map((item: Menu) => (
+                      <li
+                        className="py-2 text-xl text-black transition-colors hover:text-neutral-500 dark:text-white"
+                        key={item.title}
+                      >
+                        <Link href={item.path} prefetch={true} onClick={closeMobileMenu}>
+                          {item.title}
+                        </Link>
+                      </li>
+                    ))}
+                  </ul>
+                ) : null}
+              </div>
             </Dialog.Panel>
           </Transition.Child>
         </Dialog>
@@ -69,59 +100,18 @@ export default function MobileMenu({ menu }: { menu: Menu[] }) {
   );
 }
 
-function MobileMenuInner({
-  menu,
-  close,
-}: {
-  menu: Menu[];
-  close: () => void;
-}) {
-  const pathname = usePathname();
-  const searchParams = useSearchParams();
-
-  useEffect(() => {
-    close();
-  }, [pathname, searchParams]);
-
+// Main component that wraps the content in Suspense
+export default function MobileMenu({ menu }: { menu: Menu[] }) {
   return (
-    <div className="p-4">
+    <Suspense fallback={
       <button
-        className="mb-4 flex h-11 w-11 items-center justify-center rounded-md border border-neutral-200 text-black transition-colors dark:border-neutral-700 dark:text-white"
-        onClick={close}
-        aria-label="Close mobile menu"
+        aria-label="Open mobile menu"
+        className="flex h-11 w-11 items-center justify-center rounded-md border border-neutral-200 text-black transition-colors md:hidden dark:border-neutral-700 dark:text-white"
       >
-        <XMarkIcon className="h-6" />
+        <Bars3Icon className="h-4" />
       </button>
-
-      <div className="mb-4 w-full">
-        <Suspense fallback={<SearchSkeleton />}>
-          <Search />
-        </Suspense>
-      </div>
-
-      {menu.length ? (
-        <ul className="flex w-full flex-col">
-          {menu.map((item: Menu) => (
-            <li
-              className="py-2 text-xl text-black transition-colors hover:text-neutral-500 dark:text-white"
-              key={item.title}
-            >
-              <Link href={item.path} prefetch={true} onClick={close}>
-                {item.title}
-              </Link>
-            </li>
-          ))}
-        </ul>
-      ) : null}
-    </div>
-  );
-}
-
-function MobileMenuSkeleton() {
-  return (
-    <div className="p-4">
-      <div className="mb-4 h-11 w-11 rounded-md border border-neutral-200 dark:border-neutral-700 animate-pulse" />
-      <div className="mb-4 h-10 bg-neutral-100 dark:bg-neutral-800 animate-pulse" />
-    </div>
+    }>
+      <MobileMenuContent menu={menu} />
+    </Suspense>
   );
 }

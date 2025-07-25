@@ -35,7 +35,7 @@ export default function FilterList({
         </h3>
       )}
       
-      {/* Desktop: Horizontal pill layout for collections, dropdown for sorting */}
+      {/* Desktop: Horizontal pill layout for collections, dropdown for sorting 
       <div className="hidden md:block">
         {title === "" ? (
           // Collections: Horizontal pills
@@ -53,9 +53,10 @@ export default function FilterList({
           </div>
         )}
       </div>
+      */}
 
-      {/* Mobile: Always use dropdown */}
-      <div className="md:hidden">
+    
+      <div className="w-full">
         <Suspense fallback={null}>
           <FilterItemDropdown list={list} />
         </Suspense>

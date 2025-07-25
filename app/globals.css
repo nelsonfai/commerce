@@ -45,6 +45,7 @@ button {
   --color-foreground: var(--foreground);
 }
 
+
 /* Utility class mappings */
 .bg-primary { background-color: var(--primary); }
 .bg-primaryLight { background-color: var(--primary-light); }
@@ -71,3 +72,7 @@ button {
 .border-white { border-color: var(--white); }
 .border-black { border-color: var(--black); }
 .border-gray { border-color: var(--gray); }
+
+.scrollbar-hide::-webkit-scrollbar {
+  display: none;
+}

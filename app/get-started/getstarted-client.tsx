@@ -231,7 +231,6 @@ export default function SubscriptionBoxClient({ subscriptionBoxes, featuredProdu
       // Add the item with its attributes
       await addItem(null, selectedDuration.variant.id, attributes);
   
-      alert('Subscription configuration saved! This would normally proceed to cart/checkout.');
     } catch (error) {
       console.error('Error adding to cart:', error);
       alert('There was an error processing your subscription. Please try again.');
@@ -309,7 +308,7 @@ export default function SubscriptionBoxClient({ subscriptionBoxes, featuredProdu
               Start Your Snack Safari
             </h1>
             <p className="text-xl text-gray-600 mb-12">
-              Who is this subscription for?
+              Who is this Box for?
             </p>
             
             <div className="grid grid-cols-1 md:grid-cols-2 gap-8 max-w-2xl mx-auto">
@@ -346,7 +345,7 @@ export default function SubscriptionBoxClient({ subscriptionBoxes, featuredProdu
         {currentStep === 2 && (
           <div className="text-center">
             <h2 className="text-4xl font-black leading-tight text-[#E84A25] mb-4">
-              Choose Your Box Size
+              How Big Can you Go?
             </h2>
             <p className="text-xl text-gray-600 mb-12">
               {isGift ? "Pick the perfect size for your gift recipient" : "Select the box that fits your snacking style"}
@@ -527,6 +526,7 @@ export default function SubscriptionBoxClient({ subscriptionBoxes, featuredProdu
                     key={product.id}
                     product={product}
                     showQuantityControls={true}
+                    allowClick={false}
                   />
                 ))}
               </div>

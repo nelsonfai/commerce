@@ -4,32 +4,32 @@ import Link from 'next/link';
 
 export async function ThreeItemGrid() {
   // Collections that start with `hidden-*` are hidden from the search page.
-  const homepageItems = await getCollectionProducts({
+  const featuredProducts = await getCollectionProducts({
     collection: 'featured-snacks',
     first:6
   });
 
-  if (!homepageItems[0] || !homepageItems[1] || !homepageItems[2]) return null;
+  if (featuredProducts.length == 0) return null;
 
-  const featuredProducts = homepageItems.slice(0, 6);
 
   return (
     <section className="py-8 sm:py-12 lg:py-16  px-8">
       <div className="mx-auto ">
-        <h2 className="text-2xl sm:text-3xl lg:text-4xl font-bold leading-tight mb-8 sm:mb-10 lg:mb-12 text-secondary">
-          Featured Snacks
+        <h2 className="text-2xl text-center sm:text-3xl lg:text-4xl font-bold leading-tight  mb-2 text-secondary">
+          What's in the box ?
         </h2>
-        <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6 gap-3 sm:gap-4 lg:gap-6">
+        <p className="text-neutral-700  mb-8 sm:mb-10 lg:mb-12 max-w-4xl text-center mx-auto ">You know that feeling when you taste something and your taste buds start to dance? That’s every Nyumly box. A mix of crunchy, spicy, sweet, and everything in between, curated just for you.</p>
+
+        <div className="flex overflow-x-auto gap-2 sm:gap-3 pb-4 scrollbar-hide">
           {featuredProducts.map((product) => (
-            <Link key={product.id} href={`/product/${product.handle}`}>
+            <Link key={product.id} href={`/product/${product.handle}`} className="flex-shrink-0 w-64 ">
               <ProductCard
                 key={product.id}
                 product={product}  
                 showQuantityControls={true}
                 cardStyle="featured"
-
               />
-              </Link>
+            </Link>
           ))}
         </div>
       </div>
