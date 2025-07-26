@@ -101,7 +101,6 @@ const ProductCard: React.FC<ProductCardProps> = ({
     if (!allowClick) {
       openModal();
     } else {
-      return
       openProductPage();
     }
   };

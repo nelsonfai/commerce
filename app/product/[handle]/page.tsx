@@ -1,17 +1,16 @@
-// app/product/[handle]/page.tsx
+// app/product/[handle]/page.tsx - Updated version with Judge.me integration
 import type { Metadata } from 'next';
 import { notFound } from 'next/navigation';
 import ProductCard from 'components/product/product-card';
-
-import { GridTileImage } from 'components/grid/tile';
 import Footer from 'components/layout/footer';
 import { Gallery } from 'components/product/gallery';
 import { ProductProvider } from 'components/product/product-context';
 import { ProductDescription } from 'components/product/product-description';
+import ProductReviews from 'components/product/reviews/product-reviews';
 import { HIDDEN_PRODUCT_TAG } from 'lib/constants';
 import { getProduct, getProductRecommendations } from 'lib/shopify';
+import { getProductReviews, getProductReviewInfo } from 'lib/judgeme';
 import { Image } from 'lib/shopify/types';
-import Link from 'next/link';
 import { Suspense } from 'react';
 
 export async function generateMetadata(props: {
@@ -57,6 +56,15 @@ export default async function ProductPage(props: { params: Promise<{ handle: str
 
   if (!product) return notFound();
 
+  // Fetch Judge.me reviews data in parallel
+  const [reviewsData, reviewInfo] = await Promise.all([
+    getProductReviews(params.handle, 1, 10),
+    getProductReviewInfo(params.handle)
+  ]);
+
+  const averageRating = reviewInfo?.product?.average_rating || 0;
+  const totalReviews = reviewInfo?.product?.reviews_count || 0;
+
   const productJsonLd = {
     '@context': 'https://schema.org',
     '@type': 'Product',
@@ -71,7 +79,17 @@ export default async function ProductPage(props: { params: Promise<{ handle: str
       priceCurrency: product.priceRange.minVariantPrice.currencyCode,
       highPrice: product.priceRange.maxVariantPrice.amount,
       lowPrice: product.priceRange.minVariantPrice.amount
-    }
+    },
+    // Add structured data for reviews (helps with SEO)
+    ...(totalReviews > 0 && {
+      aggregateRating: {
+        '@type': 'AggregateRating',
+        ratingValue: averageRating,
+        reviewCount: totalReviews,
+        bestRating: 5,
+        worstRating: 1
+      }
+    })
   };
 
   return (
@@ -83,7 +101,7 @@ export default async function ProductPage(props: { params: Promise<{ handle: str
             __html: JSON.stringify(productJsonLd)
           }}
         />
-        <div className="mx-auto max-w-(--breakpoint-2xl) px-4">
+        <div className="mx-auto max-w-(--breakpoint-2xl) px-4 mt-12">
           <div className="flex flex-col rounded-lg border border-neutral-200 bg-white p-8 md:p-12 lg:flex-row lg:gap-8 dark:border-neutral-800 dark:bg-black">
             <div className="h-full w-full basis-full lg:basis-4/6">
               <Suspense
@@ -103,9 +121,38 @@ export default async function ProductPage(props: { params: Promise<{ handle: str
             <div className="basis-full lg:basis-2/6">
               <Suspense fallback={<div className="animate-pulse bg-gray-200 h-64 rounded"></div>}>
                 <ProductDescription product={product} />
+              
               </Suspense>
             </div>
           </div>
+
+          {/* Reviews Section */}
+          <div id="reviews" className="mt-16">
+            <Suspense 
+              fallback={
+                <div className="animate-pulse">
+                  <div className="h-8 bg-gray-200 rounded w-48 mb-6"></div>
+                  <div className="space-y-4">
+                    {[...Array(3)].map((_, i) => (
+                      <div key={i} className="border-b border-gray-200 pb-6">
+                        <div className="h-4 bg-gray-200 rounded w-32 mb-2"></div>
+                        <div className="h-4 bg-gray-200 rounded w-full mb-2"></div>
+                        <div className="h-4 bg-gray-200 rounded w-3/4"></div>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              }
+            >
+              <ProductReviews
+                productHandle={product.handle}
+                productTitle={product.title}
+                productId={product.id}
+              />
+            </Suspense>
+          </div>
+
+          {/* Related Products */}
           <RelatedProducts id={product.id} />
         </div>
         <Footer />
@@ -120,7 +167,7 @@ async function RelatedProducts({ id }: { id: string }) {
   if (!relatedProducts.length) return null;
 
   return (
-    <div className="py-8 ">
+    <div className="py-8 mt-16">
       <h2 className="mb-4 text-2xl font-bold">Related Products</h2>
       <ul className="flex w-full gap-4 overflow-x-auto pt-1 relative">
         {relatedProducts.map((product) => (

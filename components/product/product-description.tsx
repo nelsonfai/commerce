@@ -9,7 +9,6 @@ export function ProductDescription({ product }: { product: Product }) {
   const availability = product.availableForSale ? 'In Stock' : 'Out of Stock';
   const hasMultipleVariants = product.variants.length > 1;
   const productTags = product.tags?.filter(tag => !tag.startsWith('_')) || []; // Filter out hidden tags
-  
   // Calculate price range display
   const minPrice = product.priceRange.minVariantPrice;
   const maxPrice = product.priceRange.maxVariantPrice;
@@ -22,6 +21,10 @@ export function ProductDescription({ product }: { product: Product }) {
         <h1 className="mb-4 text-4xl font-bold leading-tight text-neutral-900 dark:text-white lg:text-5xl">
           {product.title}
         </h1>
+        <p>{product.id}</p>
+        <p>{product.handle}</p>
+
+
         
         {/* Price Section */}
         <div className="mb-4 flex flex-col gap-2">
