@@ -1,6 +1,6 @@
 // app/api/auth/logout/route.ts
+import { customerLogout } from 'lib/customer-delete';
 import { NextRequest, NextResponse } from 'next/server';
-import { customerLogout } from 'lib/customer';
 
 export async function POST(request: NextRequest) {
   try {

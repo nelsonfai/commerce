@@ -21,11 +21,10 @@ export function ProductDescription({ product }: { product: Product }) {
         <h1 className="mb-4 text-4xl font-bold leading-tight text-neutral-900 dark:text-white lg:text-5xl">
           {product.title}
         </h1>
-        <p>{product.id}</p>
-        <p>{product.handle}</p>
 
 
-        
+
+
         {/* Price Section */}
         <div className="mb-4 flex flex-col gap-2">
           <div className="flex items-baseline gap-3">
@@ -54,17 +53,15 @@ export function ProductDescription({ product }: { product: Product }) {
               </span>
             )}
           </div>
-          
+
           {/* Availability Badge */}
           <div className="flex items-center gap-2">
-            <div className={`inline-flex items-center rounded-full px-3 py-1 text-sm font-medium ${
-              product.availableForSale 
+            <div className={`inline-flex items-center rounded-full px-3 py-1 text-sm font-medium ${product.availableForSale
                 ? 'bg-green-100 text-green-800 dark:bg-green-900/30 dark:text-green-400'
                 : 'bg-red-100 text-red-800 dark:bg-red-900/30 dark:text-red-400'
-            }`}>
-              <div className={`mr-1.5 h-2 w-2 rounded-full ${
-                product.availableForSale ? 'bg-green-400' : 'bg-red-400'
-              }`} />
+              }`}>
+              <div className={`mr-1.5 h-2 w-2 rounded-full ${product.availableForSale ? 'bg-green-400' : 'bg-red-400'
+                }`} />
               {availability}
             </div>
           </div>

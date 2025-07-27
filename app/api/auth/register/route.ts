@@ -1,6 +1,6 @@
 // app/api/auth/register/route.ts
+import { createCustomer } from 'lib/customer-delete';
 import { NextRequest, NextResponse } from 'next/server';
-import { createCustomer } from 'lib/customer';
 export async function POST(request: NextRequest) {
   try {
     const { email, password, firstName, lastName, phone, acceptsMarketing } = await request.json();

@@ -1,4 +1,3 @@
-// contexts/AuthContext.tsx
 'use client';
 
 import React, { createContext, useContext, ReactNode } from 'react';
@@ -30,7 +29,7 @@ export function withAuth<P extends object>(Component: React.ComponentType<P>) {
     const { isAuthenticated, isLoading } = useAuthContext();
 
     if (isLoading) {
-      return <div>Loading...</div>;
+      return <div>Loading Auth...</div>;
     }
 
     if (!isAuthenticated) {

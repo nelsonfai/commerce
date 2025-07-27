@@ -1,8 +1,8 @@
-// lib/shopify/customer.ts
+// lib/customer-server.ts
 import { cookies } from 'next/headers';
 import { shopifyFetch } from './shopify';
 import { TAGS } from 'lib/constants';
-import { revalidateTag, unstable_cacheTag as cacheTag } from 'next/cache';
+import { revalidateTag, unstable_cacheTag as cacheTag, unstable_cache } from 'next/cache';
 
 // Types for customer data
 export interface Customer {
@@ -73,7 +73,6 @@ export interface OrderLineItem {
     };
   };
 }
-
 
 interface ShopifyResponse {
   body: {
@@ -349,6 +348,13 @@ export async function customerLogout() {
   }
 }
 
+// Helper function to check if customer is authenticated
+export async function isCustomerAuthenticated(): Promise<boolean> {
+  const customer = await getCustomer();
+  return customer !== null;
+}
+
+// Enhanced getCustomer with caching
 export async function getCustomer(): Promise<Customer | null> {
   const cookieStore = await cookies();
   const customerAccessToken = cookieStore.get('customerAccessToken')?.value;
@@ -358,22 +364,40 @@ export async function getCustomer(): Promise<Customer | null> {
   }
 
   try {
-    const res: { body: any } = await shopifyFetch({
-      query: customerQuery,
-      variables: { customerAccessToken }
-    });
+    // Cache customer data for 5 minutes with token-specific key
+    const cachedCustomer = unstable_cache(
+      async (token: string) => {
+        const res: { body: any } = await shopifyFetch({
+          query: customerQuery,
+          variables: { customerAccessToken: token }
+        });
 
-    if (!res.body.data.customer) {
+        if (!res.body.data.customer) {
+          return null;
+        }
+
+        const customer = res.body.data.customer;
+        return {
+          ...customer,
+          addresses: customer.addresses.edges.map((edge: any) => edge.node)
+        };
+      },
+      [`customer-${customerAccessToken.slice(-8)}`], // Use last 8 chars as cache key
+      {
+        revalidate: 300, // 5 minutes
+        tags: [`customer-${customerAccessToken.slice(-8)}`]
+      }
+    );
+
+    const customer = await cachedCustomer(customerAccessToken);
+    
+    if (!customer) {
       // Token might be expired, remove it
       cookieStore.delete('customerAccessToken');
       return null;
     }
 
-    const customer = res.body.data.customer;
-    return {
-      ...customer,
-      addresses: customer.addresses.edges.map((edge: any) => edge.node)
-    };
+    return customer;
   } catch (error) {
     console.error('Error fetching customer:', error);
     // Remove invalid token
@@ -382,6 +406,7 @@ export async function getCustomer(): Promise<Customer | null> {
   }
 }
 
+// Enhanced getCustomerOrders with caching
 export async function getCustomerOrders(first: number = 10): Promise<Order[]> {
   const cookieStore = await cookies();
   const customerAccessToken = cookieStore.get('customerAccessToken')?.value;
@@ -390,21 +415,34 @@ export async function getCustomerOrders(first: number = 10): Promise<Order[]> {
     throw new Error('Customer not authenticated');
   }
 
-  const res: { body: any } = await shopifyFetch({
-    query: customerOrdersQuery,
-    variables: { customerAccessToken, first }
-  });
+  // Cache orders for 2 minutes
+  const cachedOrders = unstable_cache(
+    async (token: string, limit: number) => {
+      const res: { body: any } = await shopifyFetch({
+        query: customerOrdersQuery,
+        variables: { customerAccessToken: token, first: limit }
+      });
 
-  if (!res.body.data.customer) {
-    throw new Error('Customer not found');
-  }
+      if (!res.body.data.customer) {
+        throw new Error('Customer not found');
+      }
 
-  return res.body.data.customer.orders.edges.map((edge: any) => ({
-    ...edge.node,
-    lineItems: edge.node.lineItems.edges.map((item: any) => item.node)
-  }));
+      return res.body.data.customer.orders.edges.map((edge: any) => ({
+        ...edge.node,
+        lineItems: edge.node.lineItems.edges.map((item: any) => item.node)
+      }));
+    },
+    [`orders-${customerAccessToken.slice(-8)}-${first}`],
+    {
+      revalidate: 120, // 2 minutes
+      tags: [`orders-${customerAccessToken.slice(-8)}`]
+    }
+  );
+
+  return cachedOrders(customerAccessToken, first);
 }
 
+// Enhanced updateCustomer with cache invalidation
 export async function updateCustomer(updates: {
   firstName?: string;
   lastName?: string;
@@ -418,7 +456,7 @@ export async function updateCustomer(updates: {
     throw new Error('Customer not authenticated');
   }
 
-  const res:{body:any} = await shopifyFetch({
+  const res: { body: any } = await shopifyFetch({
     query: customerUpdateMutation,
     variables: {
       customerAccessToken,
@@ -426,15 +464,12 @@ export async function updateCustomer(updates: {
     }
   });
 
-  if (  res.body.data.customerUpdate.customerUserErrors.length > 0) {
+  if (res.body.data.customerUpdate.customerUserErrors.length > 0) {
     throw new Error(res.body.data.customerUpdate.customerUserErrors[0].message);
   }
 
-  return res.body.data.customerUpdate.customer;
-}
+  // Invalidate customer cache
+  revalidateTag(`customer-${customerAccessToken.slice(-8)}`);
 
-// Helper function to check if customer is authenticated
-export async function isCustomerAuthenticated(): Promise<boolean> {
-  const customer = await getCustomer();
-  return customer !== null;
+  return res.body.data.customerUpdate.customer;
 }

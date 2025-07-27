@@ -1,6 +1,6 @@
 // app/api/customer/orders/route.ts
+import { getCustomerOrders } from 'lib/customer-server';
 import { NextRequest, NextResponse } from 'next/server';
-import { getCustomerOrders } from 'lib/customer';
 
 export async function GET(request: NextRequest) {
   try {

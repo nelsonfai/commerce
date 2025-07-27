@@ -1,6 +1,6 @@
 // app/api/auth/login/route.ts
+import { customerLogin } from 'lib/customer-delete';
 import { NextRequest, NextResponse } from 'next/server';
-import { customerLogin } from 'lib/customer';
 export async function POST(request: NextRequest) {
   try {
     const { email, password } = await request.json();
