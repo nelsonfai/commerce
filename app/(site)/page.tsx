@@ -3,7 +3,8 @@
 import { ThreeItemGrid } from 'components/grid/featured-products';
 import Footer from 'components/layout/footer';
 import ImageCarouselSection from 'components/Hero';
-export const metadata = {
+import { Metadata } from 'next';
+export const metadata: Metadata = {
   description:
     'High-performance ecommerce store built with Next.js, Vercel, and Shopify.',
   openGraph: {

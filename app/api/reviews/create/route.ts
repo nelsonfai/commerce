@@ -9,7 +9,7 @@ export async function POST(request: NextRequest) {
     console.log('Create review request body:', { ...body, email: '[HIDDEN]' });
     
     // Validate required fields
-    if (!body.rating || !body.name || !body.email || !body.body || !body.product_handle) {
+    if (!body.rating || !body.name || !body.email || !body.body || !body.product_handle || !body.product_id) {
       return NextResponse.json(
         { success: false, message: 'Missing required fields' },
         { status: 400 }

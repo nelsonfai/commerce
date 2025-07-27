@@ -69,6 +69,7 @@ type ExtractVariables<T> = T extends { variables: object }
   ? T['variables']
   : never;
 
+
 export async function shopifyFetch<T>({
   headers,
   query,
@@ -76,7 +77,8 @@ export async function shopifyFetch<T>({
 }: {
   headers?: HeadersInit;
   query: string;
-  variables?: ExtractVariables<T>;
+  variables?: Record<string, any>;
+
 }): Promise<{ status: number; body: T } | never> {
   try {
     const result = await fetch(endpoint, {
