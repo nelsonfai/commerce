@@ -20,7 +20,7 @@ function NotFoundContent() {
 
 export default function NotFound() {
   return (
-    <Suspense fallback={<div className="flex justify-center py-20">Loading...</div>}>
+    <Suspense fallback={<div className="flex justify-center py-20">Loading Not Found...</div>}>
       <NotFoundContent />
     </Suspense>
   );

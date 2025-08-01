@@ -1,8 +1,8 @@
 // lib/hooks/useOrders.ts
 'use client';
 
-import { useState, useEffect } from 'react';
-import { Order } from 'lib/customer';
+import { Order } from 'lib/customer-delete';
+import { useEffect, useState } from 'react';
 import { useAuth } from './useAuth';
 
 export function useOrders(autoFetch: boolean = true) {

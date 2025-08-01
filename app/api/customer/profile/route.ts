@@ -1,6 +1,6 @@
 // app/api/customer/profile/route.ts
+import { getCustomer, updateCustomer } from 'lib/customer-server';
 import { NextRequest, NextResponse } from 'next/server';
-import { getCustomer, updateCustomer } from 'lib/customer';
 export async function GET() {
   try {
     const customer = await getCustomer();

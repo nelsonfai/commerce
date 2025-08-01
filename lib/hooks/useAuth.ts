@@ -1,8 +1,7 @@
 // lib/hooks/useAuth.ts
 'use client';
-
 import { useState, useEffect } from 'react';
-import { Customer } from 'lib/customer';
+import { Customer } from 'lib/customer-client';
 
 interface AuthState {
   customer: Customer | null;

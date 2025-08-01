@@ -1,6 +1,6 @@
 'use client';
 
-import { PlusIcon, MinusIcon } from '@heroicons/react/24/outline';
+import { PlusIcon, MinusIcon,ShoppingCartIcon } from '@heroicons/react/24/outline';
 import clsx from 'clsx';
 import { addItem, updateItemQuantity } from 'components/cart/actions';
 import { useProduct } from 'components/product/product-context';
@@ -207,10 +207,10 @@ function AddToCartButton({
         <PlusIcon className="h-5 w-5" />
       ) : (
         <>
-          <span className="sm:hidden">
-            <PlusIcon className="h-5 w-5" />
+          <span >
+            <ShoppingCartIcon className="h-5 w-5 " />
           </span>
-          <span className="">{pending ? 'Adding...' : 'Add To Cart'}</span>
+          <span className="ml-2">{pending ? 'Adding...' : ' Add To Carts'}</span>
         </>
       )}
     </button>
@@ -223,6 +223,7 @@ export function AddToCart({
 }: {
   product: Product;
   compact?: boolean;
+  className?: string
 }) {
   const { variants, availableForSale } = product;
   const { updateCartItem, cart } = useCart();

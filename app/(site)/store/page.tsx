@@ -47,115 +47,127 @@ export default async function StorePage({ searchParams }: PageProps) {
   );
 
   return (
-    <div className="space-y-12 pt-6 overflow-x-hidden">
+    <div className="min-h-screen ">
+      <div className=" px-4 sm:px-6 lg:px-8 py-8 space-y-16">
 
-      {/* Store Intro Section */}
-      <div className="text-center space-y-6 py-6 ">
-        <div className="space-y-4 ">
-          <h1 className="text-4xl font-bold tracking-tight text-secondary dark:text-white">
-            Start Your Snack Safari
-          </h1>
-          <p className="text-lg text-gray-600 dark:text-gray-400 max-w-3xl mx-auto">
-            We have arrange it for you  sweet, spicy, crunchy, and everything in between.
-            Pick your vibe, pick your region, and shop easy.
-          </p>
-        </div> 
-        <div className=' w-full h-96 mx-auto bg-gray-200 rounded-lg'>
-        <div 
-              className=" w-full rounded-lg h-full bg-cover bg-center transition-all "
+        {/* Hero Section */}
+        <div className="text-center space-y-8">
+          <div className="space-y-4">
+            <h1 className="text-4xl sm:text-5xl font-light text-secondary dark:text-white tracking-tight">
+              Start Your Snack Safari
+            </h1>
+            <p className="text-lg text-black  max-w-2xl mx-auto font-light leading-relaxed">
+              Sweet, spicy, crunchy, and everything in between.
+              Pick your vibe, pick your region, and shop easy.
+            </p>
+          </div>
+          
+          {/* Hero Image */}
+          <div className="relative w-full h-80 sm:h-96 mx-auto rounded-2xl overflow-hidden shadow-lg">
+            <div 
+              className="w-full h-full bg-cover bg-center transition-all duration-500 hover:scale-105"
               style={{
-                backgroundImage: 'url("/hero/hero_3.png")'            }}
-            />  
-        </div>
-      </div>
-
-      {/* Category Buttons */}
-      <div className="space-y-4">
-        <h2 className="text-2xl font-bold text-gray-900 dark:text-white">
-          Shop by Category — What Are You Looking ?
-        </h2>
-        <div className="w-full overflow-x-auto scrollbar-hide">
-          <div className="flex gap-3 pb-2 min-w-max">
-            {collections.map((category) => (
-              <Link
-                key={category.handle}
-                href={`/collection/${category.handle}`}
-                className="flex justify-center items-center px-12 py-8 bg-secondary rounded-md text-md text-white border border-gray-300 whitespace-nowrap">
-                {category.title}
-              </Link>
-            ))}
+                backgroundImage: 'url("/hero/hero_3.png")'
+              }}
+            />
+            <div className="absolute inset-0 bg-gradient-to-t from-black/20 to-transparent" />
           </div>
         </div>
-      </div>
 
-      {/* Collections Section */}
-      {collectionsWithItems.map((collection) => (
-        <section key={collection.handle} className="space-y-6 border-t border-gray-100 pt-6">
-          {/* Collection Header */}
-          <div className="flex items-center justify-between">
-            <div>
-              <h2 className="text-2xl font-bold tracking-tight">
-                {collection.title}
-              </h2>
-              {collection.description && (
-                <p className="mt-2 text-gray-600 dark:text-gray-400">
-                  {collection.description}
-                </p>
-              )}
+        {/* Category Navigation */}
+        <div className="space-y-6">
+          <h2 className="text-2xl sm:text-3xl font-light text-secondary">
+            Shop by Category
+          </h2>
+          
+          <div className="overflow-x-auto">
+            <div className="flex gap-4 pb-4 min-w-max">
+              {collections.map((category) => (
+                <Link
+                  key={category.handle}
+                  href={`/collection/${category.handle}`}
+                  className="group flex-shrink-0 px-8 py-4 bg-white rounded-xl border border-slate-200  transition-all duration-200 "
+                >
+                  <span className="text-sm font-medium text-secondary  dark:group-hover:text-white whitespace-nowrap">
+                    {category.title}
+                  </span>
+                </Link>
+              ))}
             </div>
-                         
-            {/* View All Button */}
-            <Link
-              href={`/collection/${collection.handle}`}
-              className="inline-flex items-center px-4 py-2 text-sm font-medium text-gray-900 bg-white border border-gray-300 rounded-md hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 dark:bg-gray-800 dark:text-white dark:border-gray-600 dark:hover:bg-gray-700"
-            >
-              View All
-              <svg
-                className="ml-2 -mr-1 w-4 h-4"
-                fill="currentColor"
-                viewBox="0 0 20 20"
-                xmlns="http://www.w3.org/2000/svg"
-              >
-                <path
-                  fillRule="evenodd"
-                  d="M10.293 3.293a1 1 0 011.414 0l6 6a1 1 0 010 1.414l-6 6a1 1 0 01-1.414-1.414L14.586 11H3a1 1 0 110-2h11.586l-4.293-4.293a1 1 0 010-1.414z"
-                  clipRule="evenodd"
-                />
-              </svg>
-            </Link>
           </div>
+        </div>
+
+        {/* Collections */}
+        <div className="space-y-16">
+          {collectionsWithItems.map((collection, index) => (
+            <section key={collection.handle} className="space-y-8">
+              {/* Collection Header */}
+              <div className="flex flex-col sm:flex-row sm:items-end sm:justify-between gap-4">
+                <div className="space-y-2">
+                  <h2 className="text-2xl sm:text-3xl font-light text-secondary dark:text-white tracking-tight">
+                    {collection.title}
+                  </h2>
+                  {collection.description && (
+                    <p className="text-slate-600 dark:text-slate-300 font-light">
+                      {collection.description}
+                    </p>
+                  )}
+                </div>
+                         
+                {/* View All Button */}
+                <Link
+                  href={`/collection/${collection.handle}`}
+                  className="group inline-flex items-center gap-2 px-6 py-3 bg-secondary  text-white  rounded-full text-sm font-medium  "
+                >
+                  View All
+                  <svg className="w-4 h-4 transition-transform group-hover:translate-x-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
+                  </svg>
+                </Link>
+              </div>
 
           {/* Products Grid - Horizontal Scroll - FIXED */}
           <div className="w-full overflow-x-auto scrollbar-hide">
             <div className="flex gap-4 pb-2 min-w-max">
               {collection.products.map((product) => (
-            
-
-
-<div key={product.id} className="w-56 sm:w-80 flex-shrink-0 overflow-hidden relative">
-  <div className="w-full max-w-full">
-    <ProductGridItems products={[product]} />
-  </div>
-</div>
+          
+          <div key={product.id} className="w-56 sm:w-80 flex-shrink-0 overflow-hidden relative">
+            <div className="w-full max-w-full">
+              <ProductGridItems products={[product]} />
+            </div>
+          </div>
               ))}
             </div>
           </div>
 
-        </section>
-      ))}
-
-      {/* Empty State */}
-      {collectionsWithItems.length === 0 && (
-        <div className="text-center py-12">
-          <h2 className="text-2xl font-bold text-gray-900 dark:text-white">
-            No products found
-          </h2>
-          <p className="mt-2 text-gray-600 dark:text-gray-400">
-            There are currently no products available in any collection.
-          </p>
+              {/* Section Divider */}
+              {index < collectionsWithItems.length - 1 && (
+                <div className="pt-4">
+                  <div className="h-px bg-gradient-to-r from-transparent via-slate-200 dark:via-slate-700 to-transparent" />
+                </div>
+              )}
+            </section>
+          ))}
         </div>
-      )}
 
+        {/* Empty State */}
+        {collectionsWithItems.length === 0 && (
+          <div className="text-center py-16 space-y-4">
+            <div className="w-16 h-16 mx-auto bg-slate-100 dark:bg-slate-800 rounded-full flex items-center justify-center">
+              <svg className="w-8 h-8 text-slate-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M20 13V6a2 2 0 00-2-2H6a2 2 0 00-2 2v7m16 0v5a2 2 0 01-2 2H6a2 2 0 01-2-2v-5m16 0h-2.586a1 1 0 00-.707.293l-2.414 2.414a1 1 0 01-.707.293h-3.172a1 1 0 01-.707-.293l-2.414-2.414A1 1 0 006.586 13H4" />
+              </svg>
+            </div>
+            <h2 className="text-2xl font-light text-slate-900 dark:text-white">
+              No products found
+            </h2>
+            <p className="text-slate-600 dark:text-slate-300 font-light">
+              There are currently no products available in any collection.
+            </p>
+          </div>
+        )}
+
+      </div>
     </div>
   );
 }

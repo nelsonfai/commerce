@@ -1,3 +1,4 @@
+// app/(site)/search/loading.tsx
 import Grid from 'components/grid';
 
 export default function Loading() {

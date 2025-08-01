@@ -434,7 +434,7 @@ export async function getMenu(handle: string): Promise<Menu[]> {
   // Default fallback menu items
   const defaultMenuItems: Menu[] = [
     { title: 'Home', path: '/' },
-    { title: 'Store', path: '/search' }, // or '/store' if you have a dedicated store page
+    { title: 'Store', path: '/store' }, // or '/store' if you have a dedicated store page
     { title: 'Search', path: '/search' },
   ];
 

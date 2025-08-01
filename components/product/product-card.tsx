@@ -6,31 +6,17 @@ import Link from 'next/link';
 import { AddToCart } from 'components/cart/add-to-cart';
 import { useRouter } from 'next/navigation';
 import { Product } from 'lib/shopify/types';
-
-interface ShopifyProduct {
-  id: string;
-  title: string;
-  handle: string;
-  description: string;
-  featuredImage: {
-    url: string;
-  };
-  priceRange: {
-    maxVariantPrice: {
-      amount: string;
-      currencyCode: string;
-    };
-  };
-  tags?: string[];
-}
+import { InformationCircleIcon } from '@heroicons/react/24/outline';
+import { StarRating, CountryOrigin } from './product-info-components';
+import Price from 'components/price';
+import clsx from 'clsx';
 
 interface ProductCardProps {
   // Accept either a Snack or Shopify Product
-  snack?: Snack;
-  product?: ShopifyProduct;
+  product: Product;
   showQuantityControls?: boolean;
   selectedItems?: SelectedItem[];
-  onAddToBox?: (snack: Snack) => void;
+  onAddToBox?: (product: Product) => void;
   onUpdateQuantity?: (id: string, quantity: number) => void;
   className?: string;
   cardStyle?: 'default' | 'featured';
@@ -38,7 +24,6 @@ interface ProductCardProps {
 }
 
 const ProductCard: React.FC<ProductCardProps> = ({ 
-  snack,
   product,
   showQuantityControls = false, 
   selectedItems = [], 
@@ -51,125 +36,114 @@ const ProductCard: React.FC<ProductCardProps> = ({
   const [isModalOpen, setIsModalOpen] = useState(false);
   const router = useRouter();
   
-  // Transform Shopify product to Snack format
-  const transformedSnack: Snack = useMemo(() => {
-    if (snack) {
-      return snack; // Already in correct format
-    }
-    
-    if (product) {
-      return {
-        id: product.id,
-        name: product.title,
-        image: product.featuredImage.url,
-        description: product.description || '',
-        price: {
-          amount: product.priceRange.maxVariantPrice.amount,
-          currency: product.priceRange.maxVariantPrice.currencyCode
-        },
-        country: product.tags?.find(tag => tag.includes('country:'))?.replace('country:', '') || 'Unknown',
-        flag: product.tags?.find(tag => tag.includes('flag:'))?.replace('flag:', '') || '🌍',
-        tags: product.tags?.filter(tag => !tag.includes('country:') && !tag.includes('flag:')) || [],
-        handle: product.handle,
-        category: product.tags?.find(tag => tag.includes('category:'))?.replace('category:', '') || undefined
-      };
-    }
-    
-    throw new Error('ProductCard: Either snack or product prop must be provided');
-  }, [snack, product]);
-  
-  const selectedItem = selectedItems.find(item => item.id === transformedSnack.id);
+  const selectedItem = selectedItems.find(item => item.id === product.id);
   const quantity = selectedItem?.quantity || 0;
 
   const handleAddToBox = () => {
     if (onAddToBox) {
-      onAddToBox(transformedSnack);
+      onAddToBox(product);
     }
   };
 
   const handleUpdateQuantity = (newQuantity: number) => {
     if (onUpdateQuantity) {
-      onUpdateQuantity(transformedSnack.id, newQuantity);
+      onUpdateQuantity(product.id, newQuantity);
     }
   };
 
-  const openModal = () => setIsModalOpen(true);
+  const openModal = (e: React.MouseEvent) => {
+    e.stopPropagation();
+    setIsModalOpen(true);
+  };
+  
   const closeModal = () => setIsModalOpen(false);
-  const openProductPage = () => router.push(`/product/${transformedSnack.handle}`);
+  
+  const openProductPage = () => router.push(`/product/${product.handle}`);
+
+  const handleCardClick = () => {
+    if (allowClick) {
+      openProductPage();
+    }
+  };
 
   const handleImageClick = () => {
     if (!allowClick) {
-      openModal();
+      openModal;
     } else {
       openProductPage();
     }
+  };
+
+  // Stop propagation for interactive elements
+  const handleInteractiveClick = (e: React.MouseEvent) => {
+    e.stopPropagation();
   };
 
   // Featured card style (for home page)
   if (cardStyle === "featured") {
     return (
       <>
-        <div className={`flex flex-col transform transition-all  duration-300 group cursor-pointer ${className}`}>
-          <div className="relative rounded-lg overflow-hidden border border-gray-100 bg-bgLight">
+        <div 
+          className={clsx(
+            "flex flex-col h-full transform transition-all duration-300 group cursor-pointer",
+            className
+          )}
+          onClick={handleCardClick}
+        >
+          <div className="relative rounded-lg overflow-hidden bg-[#f9f7f2]">
             <img
-              src={transformedSnack.image}
-              alt={transformedSnack.name}
-              className="aspect-square w-full object-cover"
+              src={product.featuredImage.url}
+              alt={product.title}
+              className="aspect-square w-full object-cover transition-transform duration-300 group-hover:scale-105"
               loading="lazy"
             />
-            <div 
-              className="absolute inset-0 bg-black/50 opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex items-center justify-center p-2 sm:p-4 text-center cursor-pointer"
-            >
-              <p className="text-white text-xs sm:text-sm">{transformedSnack.description}</p>
+            <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex items-end justify-center p-4 text-center cursor-pointer">
+              <p className="text-white text-sm font-light leading-relaxed">{product.description}</p>
             </div>
           </div>
-          <div className="mt-2">
-            <p className="font-medium text-primary text-sm sm:text-base line-clamp-2">{transformedSnack.name}</p>
-            <p className="text-xs sm:text-sm flex items-center text-textDark">
-              <span className="mr-1">{transformedSnack.flag}</span> {transformedSnack.country}
-            </p>
-            {transformedSnack.price && (
-              <p className="text-xs font-bold mt-1 text-secondary">
-                {typeof transformedSnack.price === 'object' ? transformedSnack.price.currency : '$'} {typeof transformedSnack.price === 'object' 
-                  ? parseFloat(transformedSnack.price.amount.toString()).toFixed(2)
-                  : transformedSnack.price.toFixed(2)
-                }
-              </p>
-            )}
+          
+          {/* Content with consistent height */}
+          <div className="flex-1 flex flex-col justify-between mt-4 ">
+            <div className="space-y-2">
+              <h3 className="font-medium text-slate-800 text-sm sm:text-base line-clamp-2 leading-tight min-h-[2.5rem]">
+                {product.title}
+              </h3>
+              
+              {/* Country and Rating with consistent height */}
+              <div className="flex flex-col min-h-[3rem]">
+                <CountryOrigin metafields={product?.metafields ?? []} />
+                <StarRating metafields={product?.metafields ?? []}  />
+              </div>
+            </div>
+            
+            {/* Price at bottom */}
+            <div className="pt-2">
+              { product && (
+                <Price 
+                  amount={product.priceRange.maxVariantPrice.amount}
+                  currencyCode={product.priceRange.maxVariantPrice.currencyCode}
+                  className="text-lg font-bold text-slate-900" 
+                />
+              ) }
+            </div>
           </div>
         </div>
 
         <SnackModal 
-          snack={transformedSnack} 
+          product={product as Product}
           isOpen={isModalOpen} 
           onClose={closeModal}
+          showQuantityControls={showQuantityControls}
+          onUpdateQuantity={onUpdateQuantity}
+          selectedQuantity={quantity}
         >
-          {showQuantityControls && selectedItem ? (
-            <div className="flex items-center space-x-2">
-              <button
-                className="w-8 h-8 flex items-center justify-center rounded-full bg-[#f9f7f2] text-[#181611] font-bold hover:bg-gray-200 transition-colors"
-                onClick={() => handleUpdateQuantity(quantity - 1)}
-              >
-                -
-              </button>
-              <span className="text-[#181611] font-medium">{quantity}</span>
-              <button
-                className="w-8 h-8 flex items-center justify-center rounded-full bg-[#f4b625] text-[#181611] font-bold hover:bg-[#e4a615] transition-colors"
-                onClick={() => handleUpdateQuantity(quantity + 1)}
-              >
-                +
-              </button>
-            </div>
-          ) : (
-            showQuantityControls && (
-              <Link
-                href={`/product/${transformedSnack.handle}`}
-                prefetch={true}
-                className="px-4 py-2 bg-[#f4b625] rounded-lg text-[#181611] font-bold hover:bg-[#e4a615] transition-colors"
-              >
-                View Product
-              </Link>
-            )
+          {showQuantityControls && !selectedItem && (
+            <button
+              className="inline-flex items-center justify-center px-6 py-3 bg-primary text-white font-medium rounded-full hover:bg-secondary transition-all duration-200 shadow-sm active:scale-[0.98]"
+              onClick={handleAddToBox}
+            >
+              Add to Box
+            </button>
           )}
         </SnackModal>
       </>
@@ -178,94 +152,122 @@ const ProductCard: React.FC<ProductCardProps> = ({
 
   return (
     <>
-      <div className={`bg-white rounded-xl overflow-hidden border border-[#e6e3db] shadow-sm hover:shadow-lg transition-all duration-300 ${className}`}>
-        <div
-          className="aspect-[4/3] bg-cover bg-center cursor-pointer"
-          style={{ backgroundImage: `url("${transformedSnack.image}")` }}
-          onClick={handleImageClick}
-        />
-        <div className="p-4">
-          <div className="flex justify-between items-start mb-2">
-            <h3 className="text-lg font-bold text-[#181611] line-clamp-2 flex-1 mr-2 h-14 leading-7">{transformedSnack.name}</h3>
-            <div className="flex items-center flex-shrink-0">
-              <span className="mr-1">{transformedSnack.flag}</span>
-              <span className="text-sm text-[#8a7e60]">{transformedSnack.country}</span>
-            </div>
-          </div>
-          <p className="text-sm text-[#8a7e60] mb-2 line-clamp-2 h-10 leading-5">{transformedSnack.description}</p>
-          <div className="flex items-center text-sm space-x-2 mb-3 overflow-x-auto scrollbar-hide h-8">
-            <div className="flex items-center space-x-2 flex-nowrap">
-              {transformedSnack.category && (
-                <span className="px-2 py-1 bg-[#f9f7f2] rounded-full text-[#8a7e60] whitespace-nowrap flex-shrink-0">{transformedSnack.category}</span>
-              )}
-              {transformedSnack.tags && transformedSnack.tags.map(tag => (
-                <span key={tag} className="px-2 py-1 bg-[#f9f7f2] rounded-full text-[#8a7e60] whitespace-nowrap flex-shrink-0">#{tag}</span>
-              ))}
-            </div>
-          </div>
-          <div className="flex justify-between items-center">
-            <span className="font-bold text-[#181611]">
-              ${typeof transformedSnack.price === 'object' 
-                ? parseFloat(transformedSnack.price.amount.toString()).toFixed(2)
-                : transformedSnack.price?.toFixed(2) || '0.00'
-              }
-            </span>
+      <div 
+        className={clsx(
+          "h-full bg-gradient-to-br from-white to-slate-50 rounded-xl overflow-hidden border border-slate-200 shadow-sm hover:shadow-lg hover:border-slate-300 transition-all duration-300 flex flex-col cursor-pointer",
+          className
+        )}
+        onClick={handleCardClick}
+      >
+        {/* Image Section */}
+        <div className="relative">
+          <div
+            className="aspect-[4/3] bg-cover bg-center transition-transform duration-300 hover:scale-105"
+            style={{ backgroundImage: `url("${product?.featuredImage.url}")` }}
+          />
+          <div className="absolute inset-0 bg-gradient-to-t from-black/20 to-transparent opacity-0 hover:opacity-100 transition-opacity duration-300" />
+        </div>
 
-            {showQuantityControls && selectedItem ? (
-              <div className="flex items-center space-x-2">
-                <button
-                  className="w-8 h-8 flex items-center justify-center rounded-full bg-[#f9f7f2] text-[#181611] font-bold hover:bg-gray-200 transition-colors"
-                  onClick={() => handleUpdateQuantity(quantity - 1)}
-                >
-                  -
-                </button>
-                <span className="text-[#181611] font-medium">{quantity}</span>
-                <button
-                  className="w-8 h-8 flex items-center justify-center rounded-full bg-[#f4b625] text-[#181611] font-bold hover:bg-[#e4a615] transition-colors"
-                  onClick={() => handleUpdateQuantity(quantity + 1)}
-                >
-                  +
-                </button>
+        {/* Content Section - Flexible height */}
+        <div className="flex-1 flex flex-col p-4 space-y-4">
+          {/* Title and Country Section */}
+          <div className="space-y-3">
+            {/* Title with consistent height */}
+            <div className="min-h-[3.5rem] flex items-start">
+              <h3 className="text-lg font-semibold text-slate-800 line-clamp-2 leading-tight">
+                {product.title}
+              </h3>
+            </div>
+            
+            {/* Country and Rating with consistent height */}
+            <div className="flex flex-col sm:flex-row sm:justify-between sm:items-start space-y-2 sm:space-y-0 min-h-[2.5rem]">
+              <div className="flex flex-col space-y-1">
+                <CountryOrigin metafields={product?.metafields ?? []} />
+                <StarRating metafields={product?.metafields ?? []} />
               </div>
-            ) : (
-              <div className="flex items-center">
-                <AddToCart product={product as Product}  compact={true} />
-                <button
-                  className="px-2 py-2 bg-[#f5f5f5] rounded-lg text-[#181611] font-bold hover:bg-gray-200 transition-colors ml-2"
-                  onClick={openModal}
-                >
-                  Info
-                </button>
+            </div>
+          </div>
+
+          {/* Description with consistent height */}
+          <div className="min-h-[2.5rem] flex items-start">
+            <p className="text-sm text-slate-600 line-clamp-2 leading-relaxed font-light">
+              {product.description}
+            </p>
+          </div>
+
+          {/* Tags Section with consistent height */}
+          <div className="min-h-[2rem] flex items-start">
+            <div className="flex items-center space-x-2 overflow-x-auto scrollbar-hide">
+              <div className="flex items-center space-x-2 flex-nowrap">
+                {product.tags && product.tags.slice(0, 2).map(tag => (
+                  <span key={tag} className="px-3 py-1 bg-slate-100 text-slate-700 rounded-full text-xs font-medium whitespace-nowrap border border-slate-200">
+                    #{tag}
+                  </span>
+                ))}
               </div>
-            )}
+            </div>
+          </div>
+
+          {/* Price and Actions Section - Always at bottom */}
+          <div className="mt-auto pt-4 space-y-4">
+            {/* Price */}
+            <div className="flex justify-between items-center">
+              {product && (
+                <Price 
+                  amount={product.priceRange.maxVariantPrice.amount}
+                  currencyCode={product.priceRange.maxVariantPrice.currencyCode}
+                  className="text-xl font-bold text-slate-900" 
+                />
+              )}
+            </div>
+
+            {/* Actions */}
+            <div className="flex items-center justify-between space-x-3" onClick={handleInteractiveClick}>
+              {showQuantityControls && selectedItem ? (
+                <div className="flex items-center space-x-3 flex-1 justify-center">
+                  <button
+                    className="w-8 h-8 flex items-center justify-center rounded-full bg-slate-100 text-slate-700 font-medium hover:bg-slate-200 transition-colors border border-slate-200"
+                    onClick={() => handleUpdateQuantity(quantity - 1)}
+                  >
+                    −
+                  </button>
+                  <span className="text-slate-800 font-medium min-w-[2rem] text-center">{quantity}</span>
+                  <button
+                    className="w-8 h-8 flex items-center justify-center rounded-full bg-primary text-white font-medium hover:bg-secondary transition-colors shadow-sm"
+                    onClick={() => handleUpdateQuantity(quantity + 1)}
+                  >
+                    +
+                  </button>
+                </div>
+              ) : (
+                <div className="flex items-center space-x-2 w-full">
+                  <div className="flex-1">
+                    <AddToCart product={product as Product} compact={true} />
+                  </div>
+                  <button
+                    className="p-2 bg-slate-100 rounded-lg text-slate-700 hover:bg-slate-200 transition-colors border border-slate-200 flex items-center justify-center"
+                    onClick={openModal}
+                  >
+                    <InformationCircleIcon className="w-4 h-4" />
+                  </button>
+                </div>
+              )}
+            </div>
           </div>
         </div>
       </div>
 
       <SnackModal 
-        snack={transformedSnack} 
+        product={product as Product}
         isOpen={isModalOpen} 
         onClose={closeModal}
+        showQuantityControls={showQuantityControls}
+        onUpdateQuantity={onUpdateQuantity}
+        selectedQuantity={quantity}
       >
-        {showQuantityControls && selectedItem ? (
-          <div className="flex items-center space-x-2">
-            <button
-              className="w-8 h-8 flex items-center justify-center rounded-full bg-[#f9f7f2] text-[#181611] font-bold hover:bg-[#e4a615] transition-colors"
-              onClick={() => handleUpdateQuantity(quantity - 1)}
-            >
-              -
-            </button>
-            <span className="text-[#181611] font-medium">{quantity}</span>
-            <button
-              className="w-8 h-8 flex items-center justify-center rounded-full bg-[#f4b625] text-[#181611] font-bold hover:bg-[#e4a615] transition-colors"
-              onClick={() => handleUpdateQuantity(quantity + 1)}
-            >
-              +
-            </button>
-          </div>
-        ) : (
+        {showQuantityControls && !selectedItem && (
           <button
-            className="px-4 py-2 bg-[#f4b625] rounded-lg text-[#181611] font-bold hover:bg-[#e4a615] transition-colors"
+            className="inline-flex items-center justify-center px-6 py-3 bg-primary text-white font-medium rounded-full hover:bg-secondary transition-all duration-200 shadow-sm active:scale-[0.98]"
             onClick={handleAddToBox}
           >
             Add to Box

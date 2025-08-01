@@ -28,7 +28,7 @@ function MobileUserAvatar({ user }: { user: any }) {
   };
 
   return (
-    <div className="flex h-10 w-10 items-center justify-center rounded-full bg-gray-600 text-white text-sm font-medium">
+    <div className="flex h-10 w-10 items-center justify-center rounded-full bg-primary text-white text-sm font-medium">
       {getInitials()}
     </div>
   );

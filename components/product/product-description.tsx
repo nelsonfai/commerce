@@ -3,128 +3,96 @@ import Price from 'components/price';
 import Prose from 'components/prose';
 import { Product } from 'lib/shopify/types';
 import { VariantSelector } from './variant-selector';
+import { StarRating, CountryOrigin } from './product-info-components';
 
 export function ProductDescription({ product }: { product: Product }) {
   // Extract product details for enhanced display
   const availability = product.availableForSale ? 'In Stock' : 'Out of Stock';
   const hasMultipleVariants = product.variants.length > 1;
-  const productTags = product.tags?.filter(tag => !tag.startsWith('_')) || []; // Filter out hidden tags
-  // Calculate price range display
-  const minPrice = product.priceRange.minVariantPrice;
-  const maxPrice = product.priceRange.maxVariantPrice;
-  const hasPriceRange = minPrice.amount !== maxPrice.amount;
+  const productTags = product.tags?.filter(tag => !tag.startsWith('_')) || [];
 
   return (
     <>
       {/* Header Section */}
-      <div className="mb-8 flex flex-col border-b pb-6 dark:border-neutral-700">
-        <h1 className="mb-4 text-4xl font-bold leading-tight text-neutral-900 dark:text-white lg:text-5xl">
-          {product.title}
-        </h1>
-        <p>{product.id}</p>
-        <p>{product.handle}</p>
-
-
-        
-        {/* Price Section */}
-        <div className="mb-4 flex flex-col gap-2">
-          <div className="flex items-baseline gap-3">
-            {hasPriceRange ? (
-              <div className="flex items-center gap-2">
-                <span className="text-2xl font-bold text-neutral-900 dark:text-white">
-                  <Price
-                    amount={minPrice.amount}
-                    currencyCode={minPrice.currencyCode}
-                  />
-                </span>
-                <span className="text-lg text-neutral-500 dark:text-neutral-400">-</span>
-                <span className="text-2xl font-bold text-neutral-900 dark:text-white">
-                  <Price
-                    amount={maxPrice.amount}
-                    currencyCode={maxPrice.currencyCode}
-                  />
-                </span>
-              </div>
-            ) : (
-              <span className="text-3xl font-bold text-neutral-900 dark:text-white">
-                <Price
-                  amount={maxPrice.amount}
-                  currencyCode={maxPrice.currencyCode}
-                />
-              </span>
-            )}
+      <div className="mb-12 pb-8 border-b border-slate-200 dark:border-neutral-700">
+        <div className="space-y-6">
+          {/* Product Title */}
+          <div>
+            <h1 className="text-4xl font-light text-secondary tracking-tight leading-tight lg:text-5xl">
+              {product.title}
+            </h1>
           </div>
           
-          {/* Availability Badge */}
-          <div className="flex items-center gap-2">
-            <div className={`inline-flex items-center rounded-full px-3 py-1 text-sm font-medium ${
-              product.availableForSale 
-                ? 'bg-green-100 text-green-800 dark:bg-green-900/30 dark:text-green-400'
-                : 'bg-red-100 text-red-800 dark:bg-red-900/30 dark:text-red-400'
-            }`}>
-              <div className={`mr-1.5 h-2 w-2 rounded-full ${
-                product.availableForSale ? 'bg-green-400' : 'bg-red-400'
-              }`} />
-              {availability}
-            </div>
+          {/* Rating and Origin */}
+          <div className="space-y-3">
+            <StarRating metafields={product.metafields} />
+            <CountryOrigin metafields={product.metafields} />
           </div>
-        </div>
 
-        {/* Product Tags */}
-        {productTags.length > 0 && (
-          <div className="mb-4">
-            <div className="flex flex-wrap gap-2">
-              {productTags.slice(0, 5).map((tag, index) => (
-                <span
-                  key={index}
-                  className="inline-flex items-center rounded-md bg-neutral-100 px-2.5 py-0.5 text-xs font-medium text-neutral-800 dark:bg-neutral-800 dark:text-neutral-200"
-                >
-                  #{tag}
-                </span>
-              ))}
-              {productTags.length > 5 && (
-                <span className="inline-flex items-center rounded-md bg-neutral-100 px-2.5 py-0.5 text-xs font-medium text-neutral-500 dark:bg-neutral-800 dark:text-neutral-400">
-                  +{productTags.length - 5} more
-                </span>
-              )}
+          {/* Price Section */}
+          <div className="space-y-4">
+            <div className="flex items-baseline">
+              <Price 
+                priceRange={product.priceRange}
+                showRange={true}
+              />
+            </div>
+
+            {/* Availability Badge */}
+            <div className="flex items-center">
+              <div className={`inline-flex items-center px-4 py-2 rounded-full text-sm font-medium transition-colors ${
+                product.availableForSale
+                  ? 'bg-green-50 text-green-700 border border-green-200 dark:bg-green-900/20 dark:text-green-400 dark:border-green-800'
+                  : 'bg-red-50 text-red-700 border border-red-200 dark:bg-red-900/20 dark:text-red-400 dark:border-red-800'
+              }`}>
+                <div className={`mr-2 h-2 w-2 rounded-full ${
+                  product.availableForSale ? 'bg-green-500' : 'bg-red-500'
+                }`} />
+                {availability}
+              </div>
             </div>
           </div>
-        )}
+
+        </div>
       </div>
 
       {/* Product Variants */}
       {hasMultipleVariants && (
-        <div className="mb-6">
-          <VariantSelector options={product.options} variants={product.variants} />
+        <div className="mb-8">
+          <div className="space-y-3">
+            <h3 className="text-lg font-medium text-secondary">
+              Options
+            </h3>
+            <VariantSelector options={product.options} variants={product.variants} />
+          </div>
         </div>
       )}
 
       {/* Product Description */}
-      {product.descriptionHtml ? (
+      {(product.descriptionHtml || product.description) && (
         <div className="mb-8">
-          <h3 className="mb-3 text-lg font-semibold text-neutral-900 dark:text-white">
-            Description
-          </h3>
-          <Prose
-            className="text-sm leading-relaxed text-neutral-700 dark:text-neutral-300"
-            html={product.descriptionHtml}
-          />
+          <div className="space-y-2">
+            <h2 className="text-2xl font-light text-secondary tracking-tight">
+              About this product
+            </h2>
+            <div className="prose-container">
+              {product.descriptionHtml ? (
+                <Prose
+                  className="text-slate-600 dark:text-neutral-400 leading-relaxed font-light text-base"
+                  html={product.descriptionHtml}
+                />
+              ) : (
+                <p className="text-slate-600 dark:text-neutral-400 leading-relaxed font-light text-base">
+                  {product.description}
+                </p>
+              )}
+            </div>
+          </div>
         </div>
-      ) : product.description ? (
-        <div className="mb-8">
-          <h3 className="mb-3 text-lg font-semibold text-neutral-900 dark:text-white">
-            Description
-          </h3>
-          <p className="text-sm leading-relaxed text-neutral-700 dark:text-neutral-300">
-            {product.description}
-          </p>
-        </div>
-      ) : null}
-
-
+      )}
 
       {/* Add to Cart Section */}
-      <div className="sticky bottom-0 bg-white p-4 border-t border-neutral-200 dark:bg-black dark:border-neutral-700 -mx-4 mt-8">
+      <div className="sticky bottom-0 bg-white/95 backdrop-blur-sm p-6 border-t border-slate-200 dark:bg-black/95 dark:border-neutral-700 -mx-4 mt-8 rounded-t-lg">
         <AddToCart product={product} />
       </div>
     </>

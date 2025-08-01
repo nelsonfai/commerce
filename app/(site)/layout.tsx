@@ -10,6 +10,7 @@ import { AuthProvider } from 'contexts/AuthContext';
 import type { Metadata } from 'next';
 import { baseUrl } from 'lib/utils';
 
+
 const { SITE_NAME } = process.env;
 
 export const metadata: Metadata = {
@@ -28,9 +29,8 @@ export const metadata: Metadata = {
 function LoadingSpinner() {
   return (
     <div className="fixed inset-0 flex items-center justify-center bg-white dark:bg-neutral-900 z-50">
-      <div className="flex flex-col items-center space-y-4">
-        <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary"></div>
-        <p className="text-sm text-gray-600 dark:text-gray-400">Loading...</p>
+      <div className="flex flex-col items-center  justify-center space-y-4">
+        <img src="/logo-mobile.png" alt="Logo" className=" w-32 md:w-48  animate-pulse" />
       </div>
     </div>
   );

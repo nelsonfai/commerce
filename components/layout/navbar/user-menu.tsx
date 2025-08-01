@@ -96,7 +96,7 @@ export default function UserMenu() {
             <MenuItem>
               {({ focus }) => (
                 <Link
-                  href="/account/orders"
+                  href="/account?tab=orders"
                   className={`${
                     focus ? 'bg-gray-100' : ''
                   } block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100`}
@@ -109,7 +109,7 @@ export default function UserMenu() {
             <MenuItem>
               {({ focus }) => (
                 <Link
-                  href="/account/addresses"
+                  href="/account?tab=addresses"
                   className={`${
                     focus ? 'bg-gray-100' : ''
                   } block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100`}

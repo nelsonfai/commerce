@@ -1,4 +1,5 @@
 
+// app/(site)/search/page.tsx
 import type { Metadata } from 'next';
 
 import Grid from 'components/grid';
@@ -8,7 +9,7 @@ import { getProducts } from 'lib/shopify';
 
 export const metadata :Metadata = {
   title: 'Search',
-  description: 'Search for products in the store.'
+  description: 'Search for products in the Nyumly store.'
 };
 
 type PageProps = {

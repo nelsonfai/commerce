@@ -27,8 +27,6 @@ interface ProductVariant {
   }>;
 }
 
-
-
 interface SubscriptionBox extends Product {
   variants: ProductVariant[];
 }
@@ -174,7 +172,6 @@ export default function SubscriptionBoxClient({ subscriptionBoxes, featuredProdu
   };
 
   // Updated handleFinalCheckout function
-
   const handleFinalCheckout = async () => {
     if (!selectedBox || !selectedDuration) return;
   
@@ -236,10 +233,6 @@ export default function SubscriptionBoxClient({ subscriptionBoxes, featuredProdu
       alert('There was an error processing your subscription. Please try again.');
     }
   };
-  
-
-
-
 
   const steps = [
     'For You or Gift?',
@@ -251,11 +244,11 @@ export default function SubscriptionBoxClient({ subscriptionBoxes, featuredProdu
   // Handle empty data gracefully
   if (!subscriptionBoxes.length && !featuredProducts.length) {
     return (
-      <div className="min-h-screen bg-gray-50 flex items-center justify-center">
+      <div className="min-h-screen bg-gradient-to-br from-slate-50 to-white flex items-center justify-center px-4">
         <div className="text-center">
-          <div className="animate-spin rounded-full h-16 w-16 border-b-2 border-[#E84A25] mx-auto mb-4"></div>
-          <h2 className="text-xl font-semibold text-gray-700">Loading subscription options...</h2>
-          <p className="text-gray-500 mt-2">Please wait while we prepare your snack safari!</p>
+          <div className="w-16 h-16 border-4 border-primary border-t-transparent rounded-full animate-spin mx-auto mb-6"></div>
+          <h2 className="text-xl font-light text-secondary mb-2">Loading subscription options...</h2>
+          <p className="text-slate-500">Please wait while we prepare your snack safari!</p>
         </div>
       </div>
     );
@@ -264,34 +257,34 @@ export default function SubscriptionBoxClient({ subscriptionBoxes, featuredProdu
   const durationOptions = selectedBox ? getDurationOptions(selectedBox) : [];
 
   return (
-    <div className="min-h-screen bg-gray-50">
+    <div className="min-h-screen bg-gradient-to-br from-slate-50 to-white">
       {/* Progress Bar */}
-      <div className="bg-white shadow-sm">
-        <div className="max-w-4xl mx-auto px-4 py-4">
+      <div className="bg-white/80 backdrop-blur-sm shadow-sm border-b border-slate-100">
+        <div className="max-w-4xl mx-auto px-4 py-6">
           <div className="flex items-center justify-between">
             {steps.map((step, index) => (
               <div key={index} className="flex items-center">
-                <div className={`flex items-center justify-center w-8 h-8 rounded-full border-2 ${
+                <div className={`flex items-center justify-center w-10 h-10 rounded-full transition-all ${
                   index + 1 <= currentStep 
-                    ? 'bg-[#E84A25] border-[#E84A25] text-white' 
-                    : 'border-gray-300 text-gray-400'
+                    ? 'bg-primary text-white shadow-lg' 
+                    : 'border-2 border-slate-200 text-slate-400 bg-white'
                 }`}>
                   {index + 1 < currentStep ? (
                     <CheckIcon className="h-5 w-5" />
                   ) : (
-                    <span className="text-sm font-bold">{index + 1}</span>
+                    <span className="text-sm font-medium">{index + 1}</span>
                   )}
                 </div>
-                <div className="ml-2 hidden sm:block">
-                  <p className={`text-sm font-medium ${
-                    index + 1 <= currentStep ? 'text-[#E84A25]' : 'text-gray-400'
+                <div className="ml-3 hidden sm:block">
+                  <p className={`text-sm font-medium transition-colors ${
+                    index + 1 <= currentStep ? 'text-secondary' : 'text-slate-400'
                   }`}>
                     {step}
                   </p>
                 </div>
                 {index < steps.length - 1 && (
-                  <div className={`hidden sm:block w-16 h-0.5 ml-4 ${
-                    index + 1 < currentStep ? 'bg-[#E84A25]' : 'bg-gray-300'
+                  <div className={`hidden sm:block w-16 h-0.5 ml-6 rounded-full transition-colors ${
+                    index + 1 < currentStep ? 'bg-primary' : 'bg-slate-200'
                   }`} />
                 )}
               </div>
@@ -300,42 +293,46 @@ export default function SubscriptionBoxClient({ subscriptionBoxes, featuredProdu
         </div>
       </div>
 
-      <div className="max-w-4xl mx-auto px-4 py-8">
+      <div className="max-w-4xl mx-auto px-4 py-12">
         {/* Step 1: Gift or Self */}
         {currentStep === 1 && (
           <div className="text-center">
-            <h1 className="text-4xl md:text-5xl font-black leading-tight text-[#E84A25] mb-4">
+            <h1 className="text-3xl sm:text-4xl md:text-5xl font-light leading-tight text-secondary mb-4 tracking-tight">
               Start Your Snack Safari
             </h1>
-            <p className="text-xl text-gray-600 mb-12">
+            <p className="text-lg sm:text-xl text-slate-500 mb-12 sm:mb-16 font-light">
               Who is this Box for?
             </p>
             
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-8 max-w-2xl mx-auto">
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-6 sm:gap-8 max-w-2xl mx-auto">
               <button
                 onClick={() => setIsGift(false)}
-                className={`p-8 rounded-2xl border-2 transition-all hover:scale-105 ${
+                className={`group p-8 rounded-2xl border-2 transition-all duration-300 hover:scale-105 ${
                   isGift === false 
-                    ? 'border-[#E84A25] bg-[#E84A25] text-white shadow-lg' 
-                    : 'border-gray-200 bg-white text-gray-700 hover:border-[#E84A25]'
+                    ? 'border-primary bg-primary text-white shadow-xl' 
+                    : 'border-slate-200 bg-white text-slate-700 hover:border-primary shadow-sm'
                 }`}
               >
-                <UserIcon className="h-16 w-16 mx-auto mb-4" />
-                <h3 className="text-2xl font-bold mb-2">For Myself</h3>
-                <p className="text-sm opacity-80">Start your own African snack journey</p>
+                <UserIcon className={`h-16 w-16 mx-auto mb-6 transition-transform group-hover:scale-110 ${
+                  isGift === false ? 'text-white' : 'text-primary'
+                }`} />
+                <h3 className="text-2xl font-medium mb-3">For Myself</h3>
+                <p className="text-sm opacity-80 font-light">Start your own African snack journey</p>
               </button>
               
               <button
                 onClick={() => setIsGift(true)}
-                className={`p-8 rounded-2xl border-2 transition-all hover:scale-105 ${
+                className={`group p-8 rounded-2xl border-2 transition-all duration-300 hover:scale-105 ${
                   isGift === true 
-                    ? 'border-[#E84A25] bg-[#E84A25] text-white shadow-lg' 
-                    : 'border-gray-200 bg-white text-gray-700 hover:border-[#E84A25]'
+                    ? 'border-primary bg-primary text-white shadow-xl' 
+                    : 'border-slate-200 bg-white text-slate-700 hover:border-primary shadow-sm'
                 }`}
               >
-                <GiftIcon className="h-16 w-16 mx-auto mb-4" />
-                <h3 className="text-2xl font-bold mb-2">As a Gift</h3>
-                <p className="text-sm opacity-80">Share the taste of Africa with someone special</p>
+                <GiftIcon className={`h-16 w-16 mx-auto mb-6 transition-transform group-hover:scale-110 ${
+                  isGift === true ? 'text-white' : 'text-primary'
+                }`} />
+                <h3 className="text-2xl font-medium mb-3">As a Gift</h3>
+                <p className="text-sm opacity-80 font-light">Share the taste of Africa with someone special</p>
               </button>
             </div>
           </div>
@@ -344,20 +341,21 @@ export default function SubscriptionBoxClient({ subscriptionBoxes, featuredProdu
         {/* Step 2: Choose Box */}
         {currentStep === 2 && (
           <div className="text-center">
-            <h2 className="text-4xl font-black leading-tight text-[#E84A25] mb-4">
+            <h2 className="text-3xl sm:text-4xl font-light leading-tight text-secondary mb-4 tracking-tight">
               How Big Can you Go?
             </h2>
-            <p className="text-xl text-gray-600 mb-12">
+            <p className="text-lg sm:text-xl text-slate-500 mb-12 sm:mb-16 font-light">
               {isGift ? "Pick the perfect size for your gift recipient" : "Select the box that fits your snacking style"}
             </p>
             
             {subscriptionBoxes.length === 0 ? (
-              <div className="text-center py-12">
-                <p className="text-gray-500 text-lg">No subscription boxes available at the moment.</p>
-                <p className="text-gray-400 text-sm mt-2">Please check back later or contact support.</p>
+              <div className="text-center py-16">
+                <div className="w-16 h-16 border-4 border-slate-200 border-t-primary rounded-full animate-spin mx-auto mb-6"></div>
+                <p className="text-slate-500 text-lg mb-2">No subscription boxes available at the moment.</p>
+                <p className="text-slate-400 text-sm">Please check back later or contact support.</p>
               </div>
             ) : (
-              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 sm:gap-8">
                 {subscriptionBoxes.map((box) => (
                   <button
                     key={box.id}
@@ -365,28 +363,28 @@ export default function SubscriptionBoxClient({ subscriptionBoxes, featuredProdu
                       setSelectedBox(box);
                       setSelectedDuration(null); // Reset duration when box changes
                     }}
-                    className={`p-6 rounded-2xl border-2 transition-all hover:scale-105 ${
+                    className={`group p-6 rounded-2xl border-2 transition-all duration-300 hover:scale-105 ${
                       selectedBox?.id === box.id 
-                        ? 'border-[#E84A25] bg-white shadow-lg ring-4 ring-[#E84A25] ring-opacity-20' 
-                        : 'border-gray-200 bg-white hover:border-[#E84A25]'
+                        ? 'border-primary bg-white shadow-xl ' 
+                        : 'border-slate-200 bg-white hover:border-primary shadow-sm'
                     }`}
                   >
-                    <div className="aspect-square mb-4 rounded-xl overflow-hidden bg-gray-50">
+                    <div className="aspect-square mb-6 rounded-xl overflow-hidden bg-slate-50">
                       <img
                         src={box.featuredImage?.url || '/placeholder-box.jpg'}
                         alt={box.featuredImage?.altText || box.title}
-                        className="w-full h-full object-cover"
+                        className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-300"
                         onError={(e) => {
                           const target = e.target as HTMLImageElement;
                           target.src = '/placeholder-box.jpg';
                         }}
                       />
                     </div>
-                    <h3 className="text-2xl font-bold mb-2 text-gray-900">{box.title}</h3>
-                    <p className="text-gray-600 mb-4 text-sm">{box.description}</p>
-                    <div className="text-3xl font-black text-[#E84A25]">
+                    <h3 className="text-2xl font-medium mb-3 text-secondary">{box.title}</h3>
+                    <p className="text-slate-600 mb-6 text-sm leading-relaxed font-light">{box.description}</p>
+                    <div className="text-3xl font-light text-primary">
                       {formatCurrency(parseFloat(box.priceRange.minVariantPrice.amount), box.priceRange.minVariantPrice.currencyCode)}
-                      <span className="text-sm font-normal text-gray-500">/month</span>
+                      <span className="text-sm font-normal text-slate-500 ml-1">/month</span>
                     </div>
                   </button>
                 ))}
@@ -398,20 +396,20 @@ export default function SubscriptionBoxClient({ subscriptionBoxes, featuredProdu
         {/* Step 3: Duration */}
         {currentStep === 3 && selectedBox && (
           <div className="text-center">
-            <h2 className="text-4xl font-black leading-tight text-[#E84A25] mb-4">
+            <h2 className="text-3xl sm:text-4xl font-light leading-tight text-secondary mb-4 tracking-tight">
               Choose Your Duration
             </h2>
-            <p className="text-xl text-gray-600 mb-12">
+            <p className="text-lg sm:text-xl text-slate-500 mb-12 sm:mb-16 font-light">
               Longer subscriptions mean bigger savings!
             </p>
             
             {durationOptions.length === 0 ? (
-              <div className="text-center py-12">
-                <p className="text-gray-500 text-lg">No duration options available for this box.</p>
-                <p className="text-gray-400 text-sm mt-2">Please try selecting a different box.</p>
+              <div className="text-center py-16">
+                <p className="text-slate-500 text-lg mb-2">No duration options available for this box.</p>
+                <p className="text-slate-400 text-sm">Please try selecting a different box.</p>
               </div>
             ) : (
-              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 sm:gap-6">
                 {durationOptions.map((duration) => {
                   const variantPrice = parseFloat(duration.variant.price.amount);
                   const expectedFullPrice = duration.basePrice * duration.months;
@@ -422,45 +420,47 @@ export default function SubscriptionBoxClient({ subscriptionBoxes, featuredProdu
                       key={duration.variant.id}
                       onClick={() => setSelectedDuration(duration)}
                       disabled={!duration.variant.availableForSale}
-                      className={`relative p-6 rounded-2xl border-2 transition-all hover:scale-105 ${
+                      className={`group relative p-6 rounded-2xl border-2 transition-all duration-300 hover:scale-105 ${
                         selectedDuration?.variant.id === duration.variant.id 
-                          ? 'border-[#E84A25] bg-white shadow-lg ring-4 ring-[#E84A25] ring-opacity-20' 
-                          : 'border-gray-200 bg-white hover:border-[#E84A25]'
+                          ? 'border-primary bg-white shadow-xl ' 
+                          : 'border-slate-200 bg-white hover:border-primary shadow-sm'
                       } ${!duration.variant.availableForSale ? 'opacity-50 cursor-not-allowed' : ''}`}
                     >
                       {duration.popular && (
                         <div className="absolute -top-3 left-1/2 transform -translate-x-1/2">
-                          <span className="bg-[#E84A25] text-white px-3 py-1 rounded-full text-xs font-bold">
+                          <span className="bg-primary text-white px-4 py-1 rounded-full text-xs font-medium shadow-lg">
                             POPULAR
                           </span>
                         </div>
                       )}
                       
-                      <CalendarDaysIcon className="h-12 w-12 mx-auto mb-4 text-[#E84A25]" />
-                      <h3 className="text-xl font-bold mb-2 text-gray-900">{duration.label}</h3>
-                      <p className="text-sm text-gray-500 mb-4">{duration.description}</p>
+                      <CalendarDaysIcon className={`h-12 w-12 mx-auto mb-6 transition-all duration-300 group-hover:scale-110 ${
+                        selectedDuration?.variant.id === duration.variant.id ? 'text-primary' : 'text-slate-400 group-hover:text-primary'
+                      }`} />
+                      <h3 className="text-xl font-medium mb-2 text-secondary">{duration.label}</h3>
+                      <p className="text-sm text-slate-500 mb-6 font-light">{duration.description}</p>
                       
                       <div className="space-y-2">
                         {savings > 0 && (
-                          <div className="text-sm text-gray-500 line-through">
+                          <div className="text-sm text-slate-400 line-through font-light">
                             {formatCurrency(expectedFullPrice, duration.currencyCode)}
                           </div>
                         )}
-                        <div className="text-2xl font-black text-[#E84A25]">
+                        <div className="text-2xl font-light text-primary">
                           {formatCurrency(variantPrice, duration.currencyCode)}
                         </div>
                         {savings > 0 && (
-                          <div className="text-sm font-bold text-green-600">
+                          <div className="text-sm font-medium text-secondary">
                             Save {formatCurrency(savings, duration.currencyCode)}
                           </div>
                         )}
-                        <div className="text-xs text-gray-400">
+                        <div className="text-xs text-slate-400 font-light">
                           {formatCurrency(variantPrice / duration.months, duration.currencyCode)}/month
                         </div>
                       </div>
                       
                       {!duration.variant.availableForSale && (
-                        <div className="text-xs text-red-500 mt-2">Out of Stock</div>
+                        <div className="text-xs text-red-500 mt-3 font-medium">Out of Stock</div>
                       )}
                     </button>
                   );
@@ -470,28 +470,28 @@ export default function SubscriptionBoxClient({ subscriptionBoxes, featuredProdu
 
             {/* Selected Box Summary */}
             {selectedDuration && (
-              <div className="mt-12 p-6 bg-white rounded-xl border border-gray-200">
-                <h3 className="text-lg font-bold mb-4">Your Selection Summary</h3>
+              <div className="mt-16 p-6 bg-white/80 rounded-2xl border border-slate-200 backdrop-blur-sm">
+                <h3 className="text-lg font-medium mb-6 text-secondary">Your Selection Summary</h3>
                 <div className="flex items-center justify-between">
                   <div className="flex items-center gap-4">
                     <img 
                       src={selectedBox.featuredImage?.url || '/placeholder-box.jpg'} 
                       alt={selectedBox.title}
-                      className="w-16 h-16 rounded-lg object-cover"
+                      className="w-16 h-16 rounded-xl object-cover shadow-sm"
                     />
                     <div className="text-left">
-                      <h4 className="font-bold">{selectedBox.title}</h4>
-                      <p className="text-sm text-gray-500">
+                      <h4 className="font-medium text-secondary">{selectedBox.title}</h4>
+                      <p className="text-sm text-slate-500 font-light">
                         {selectedDuration.label} subscription
                       </p>
                     </div>
                   </div>
                   <div className="text-right">
-                    <div className="text-2xl font-black text-[#E84A25]">
+                    <div className="text-2xl font-light text-primary">
                       {formatCurrency(parseFloat(selectedDuration.variant.price.amount), selectedDuration.currencyCode)}
                     </div>
                     {calculateSavings() > 0 && (
-                      <div className="text-sm text-green-600 font-bold">
+                      <div className="text-sm text-secondary font-medium">
                         You save {formatCurrency(calculateSavings(), getCurrencyCode())}
                       </div>
                     )}
@@ -505,22 +505,22 @@ export default function SubscriptionBoxClient({ subscriptionBoxes, featuredProdu
         {/* Step 4: Add-ons */}
         {currentStep === 4 && (
           <div>
-            <div className="text-center mb-12">
-              <h2 className="text-4xl font-black leading-tight text-[#E84A25] mb-4">
+            <div className="text-center mb-12 sm:mb-16">
+              <h2 className="text-3xl sm:text-4xl font-light leading-tight text-secondary mb-4 tracking-tight">
                 Enhance Your Experience
               </h2>
-              <p className="text-xl text-gray-600">
+              <p className="text-lg sm:text-xl text-slate-500 font-light">
                 Add premium items to complement your snack box
               </p>
             </div>
             
             {featuredProducts.length === 0 ? (
-              <div className="text-center py-12">
-                <p className="text-gray-500 text-lg">No add-on products available at the moment.</p>
-                <p className="text-gray-400 text-sm mt-2">You can proceed without add-ons.</p>
+              <div className="text-center py-16">
+                <p className="text-slate-500 text-lg mb-2">No add-on products available at the moment.</p>
+                <p className="text-slate-400 text-sm">You can proceed without add-ons.</p>
               </div>
             ) : (
-              <div className="grid grid-cols-2 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-3 gap-3 sm:gap-4 lg:gap-6">
+              <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4 sm:gap-6">
                 {featuredProducts.map((product) => (
                   <ProductCard
                     key={product.id}
@@ -535,11 +535,11 @@ export default function SubscriptionBoxClient({ subscriptionBoxes, featuredProdu
         )}
 
         {/* Navigation */}
-        <div className="flex justify-between items-center mt-12">
+        <div className="flex flex-col sm:flex-row gap-2 justify-between items-center mt-16">
           <button
             onClick={prevStep}
             disabled={currentStep === 1}
-            className="inline-flex items-center gap-x-2 rounded-xl bg-gray-200 px-6 py-3 text-base font-bold text-gray-700 transition hover:bg-gray-300 disabled:opacity-50 disabled:cursor-not-allowed"
+            className="inline-flex items-center gap-x-3 rounded-full bg-slate-100 px-6 py-3 text-base font-medium text-slate-600 transition-all hover:bg-slate-200 disabled:opacity-50 disabled:cursor-not-allowed active:scale-95"
           >
             <ArrowLeftIcon className="h-5 w-5" />
             Back
@@ -549,7 +549,7 @@ export default function SubscriptionBoxClient({ subscriptionBoxes, featuredProdu
             <button
               onClick={nextStep}
               disabled={!canProceedToNext()}
-              className="inline-flex items-center gap-x-2 rounded-xl bg-[#E84A25] px-8 py-3 text-base font-bold text-white transition hover:bg-[#d43d1a] disabled:opacity-50 disabled:cursor-not-allowed"
+              className="inline-flex items-center gap-x-3 rounded-full bg-primary px-8 py-3 text-base font-medium text-white transition-all hover:bg-secondary disabled:opacity-50 disabled:cursor-not-allowed active:scale-95 shadow-lg"
             >
               Continue
               <ArrowRightIcon className="h-5 w-5" />
@@ -558,9 +558,9 @@ export default function SubscriptionBoxClient({ subscriptionBoxes, featuredProdu
             <button
               onClick={handleFinalCheckout}
               disabled={!selectedBox || !selectedDuration}
-              className="inline-flex items-center gap-x-2 rounded-xl bg-[#E84A25] px-8 py-3 text-base font-bold text-white transition hover:bg-[#d43d1a] disabled:opacity-50 disabled:cursor-not-allowed"
+              className="inline-flex items-center gap-x-3 rounded-full bg-primary px-8 py-3 text-base font-medium text-white transition-all hover:bg-secondary disabled:opacity-50 disabled:cursor-not-allowed active:scale-95 shadow-lg"
             >
-              Add to Cart & Checkout
+              Add to Cart
               <ArrowRightIcon className="h-5 w-5" />
             </button>
           )}
