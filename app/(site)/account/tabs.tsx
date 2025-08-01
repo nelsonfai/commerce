@@ -1,5 +1,5 @@
 'use client';
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import {
   CubeIcon as PackageIcon,
   MapPinIcon as LocationIcon,
@@ -11,6 +11,8 @@ import {
   TrashIcon
 } from '@heroicons/react/24/outline';
 
+
+ import { createCustomerAddressAction, updateCustomerAddressAction ,deleteCustomerAddressAction} from 'lib/actions/customer-actions';
 // Tab Components
 const  OrdersTab = ({ orders, isLoading, error, fetchOrders }: any) => {
   const [expandedOrders, setExpandedOrders] = useState<Set<string>>(new Set());
@@ -310,7 +312,7 @@ const ProfileTab = ({ customer, updateProfile }: any) => {
                 name="firstName"
                 value={formData.firstName}
                 onChange={handleChange}
-                className="w-full px-4 py-3 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent"
+                className="w-full px-4 py-3 border border-gray-200 rounded-lg"
                 disabled={isSubmitting}
               />
             </div>
@@ -324,7 +326,7 @@ const ProfileTab = ({ customer, updateProfile }: any) => {
                 name="lastName"
                 value={formData.lastName}
                 onChange={handleChange}
-                className="w-full px-4 py-3 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent"
+                className="w-full px-4 py-3 border border-gray-200 rounded-lg"
                 disabled={isSubmitting}
               />
             </div>
@@ -339,7 +341,7 @@ const ProfileTab = ({ customer, updateProfile }: any) => {
               name="phone"
               value={formData.phone}
               onChange={handleChange}
-              className="w-full px-4 py-3 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent"
+              className="w-full px-4 py-3 border border-gray-200 rounded-lg"
               disabled={isSubmitting}
             />
           </div>
@@ -372,25 +374,10 @@ const ProfileTab = ({ customer, updateProfile }: any) => {
   );
 };
 
-const AddressTab = ({ customer }: any) => {
-  const [addresses, setAddresses] = useState([
-    // Sample addresses - replace with actual data from your backend
-    {
-      id: '1',
-      firstName: 'John',
-      lastName: 'Doe',
-      company: '',
-      address1: '123 Main Street',
-      address2: 'Apt 4B',
-      city: 'New York',
-      province: 'NY',
-      zip: '10001',
-      country: 'United States',
-      phone: '+1 555-0123',
-      isDefault: true
-    }
-  ]);
-
+const AddressTab = ({ customer, onAddressUpdate }: any) => {
+  // Use real addresses from customer data instead of mock data
+  const [addresses, setAddresses] = useState(customer?.addresses || []);
+  const [defaultAddressId, setDefaultAddressId] = useState(customer?.defaultAddress?.id);
   const [showForm, setShowForm] = useState(false);
   const [editingAddress, setEditingAddress] = useState<any>(null);
   const [isSubmitting, setIsSubmitting] = useState(false);
@@ -409,6 +396,12 @@ const AddressTab = ({ customer }: any) => {
     phone: '',
     isDefault: false
   });
+
+  // Update addresses when customer data changes
+  useEffect(() => {
+    setAddresses(customer?.addresses || []);
+    setDefaultAddressId(customer?.defaultAddress?.id);
+  }, [customer]);
 
   const resetForm = () => {
     setFormData({
@@ -429,16 +422,51 @@ const AddressTab = ({ customer }: any) => {
   };
 
   const handleEdit = (address: any) => {
-    setFormData(address);
+    setFormData({
+      firstName: address.firstName || '',
+      lastName: address.lastName || '',
+      company: address.company || '',
+      address1: address.address1 || '',
+      address2: address.address2 || '',
+      city: address.city || '',
+      province: address.province || '',
+      zip: address.zip || '',
+      country: address.country || 'United States',
+      phone: address.phone || '',
+      isDefault: address.id === defaultAddressId
+    });
     setEditingAddress(address);
     setShowForm(true);
   };
 
   const handleDelete = async (addressId: string) => {
     if (window.confirm('Are you sure you want to delete this address?')) {
-      // Implement delete logic here
-      setAddresses(prev => prev.filter(addr => addr.id !== addressId));
-      setMessage({ type: 'success', text: 'Address deleted successfully!' });
+      try {
+        const result = await deleteCustomerAddressAction(addressId);
+        if (!result.success) {
+          throw new Error(result.error);
+        }
+        
+        // Update local state immediately
+        setAddresses((prev: any[]) => prev.filter(addr => addr.id !== addressId));
+        
+        // If deleted address was default, clear default
+        if (addressId === defaultAddressId) {
+          setDefaultAddressId(undefined);
+        }
+        
+        // Optional: notify parent component for any additional updates
+        if (onAddressUpdate) {
+          onAddressUpdate();
+        }
+        
+        setMessage({ type: 'success', text: 'Address deleted successfully!' });
+      } catch (error) {
+        setMessage({
+          type: 'error',
+          text: error instanceof Error ? error.message : 'Failed to delete address'
+        });
+      }
     }
   };
 
@@ -450,16 +478,47 @@ const AddressTab = ({ customer }: any) => {
     try {
       if (editingAddress) {
         // Update existing address
-        setAddresses(prev => prev.map(addr =>
-          addr.id === editingAddress.id ? { ...formData, id: editingAddress.id } : addr
+        const result = await updateCustomerAddressAction(editingAddress.id, formData);
+        if (!result.success) {
+          throw new Error(result.error);
+        }
+
+        // Update local state immediately
+        const updatedAddress = result.address;
+        setAddresses((prev: any[]) => prev.map(addr => 
+          addr.id === editingAddress.id ? updatedAddress : addr
         ));
+
+        // Update default address if needed
+        if (formData.isDefault) {
+          setDefaultAddressId(updatedAddress.id);
+        }
+
         setMessage({ type: 'success', text: 'Address updated successfully!' });
       } else {
-        // Add new address
-        const newAddress = { ...formData, id: Date.now().toString() };
-        setAddresses(prev => [...prev, newAddress]);
+        // Create new address
+        const result = await createCustomerAddressAction(formData);
+        if (!result.success) {
+          throw new Error(result.error);
+        }
+
+        // Add new address to local state immediately
+        const newAddress = result.address;
+        setAddresses((prev: any) => [...prev, newAddress]);
+
+        // Update default address if needed
+        if (formData.isDefault) {
+          setDefaultAddressId(newAddress.id);
+        }
+
         setMessage({ type: 'success', text: 'Address added successfully!' });
       }
+      
+      // Optional: notify parent component for any additional updates
+      if (onAddressUpdate) {
+        onAddressUpdate();
+      }
+      
       resetForm();
     } catch (error) {
       setMessage({
@@ -492,6 +551,7 @@ const AddressTab = ({ customer }: any) => {
           Add New Address
         </button>
       </div>
+
       {message && (
         <div className={`p-4 rounded-xl border ${
           message.type === 'success'
@@ -501,6 +561,7 @@ const AddressTab = ({ customer }: any) => {
           {message.text}
         </div>
       )}
+
       {/* Address Form */}
       {showForm && (
         <div className="bg-white border border-gray-100 rounded-2xl p-8">
@@ -531,7 +592,7 @@ const AddressTab = ({ customer }: any) => {
                   value={formData.firstName}
                   onChange={handleChange}
                   required
-                  className="w-full px-4 py-3 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent"
+                  className="w-full px-4 py-3 border border-gray-200 rounded-lg"
                   disabled={isSubmitting}
                 />
               </div>
@@ -546,7 +607,7 @@ const AddressTab = ({ customer }: any) => {
                   value={formData.lastName}
                   onChange={handleChange}
                   required
-                  className="w-full px-4 py-3 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent"
+                  className="w-full px-4 py-3 border border-gray-200 rounded-lg"
                   disabled={isSubmitting}
                 />
               </div>
@@ -562,7 +623,7 @@ const AddressTab = ({ customer }: any) => {
                 name="company"
                 value={formData.company}
                 onChange={handleChange}
-                className="w-full px-4 py-3 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent"
+                className="w-full px-4 py-3 border border-gray-200 rounded-lg"
                 disabled={isSubmitting}
               />
             </div>
@@ -578,7 +639,7 @@ const AddressTab = ({ customer }: any) => {
                 value={formData.address1}
                 onChange={handleChange}
                 required
-                className="w-full px-4 py-3 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent"
+                className="w-full px-4 py-3 border border-gray-200 rounded-lg"
                 disabled={isSubmitting}
               />
             </div>
@@ -593,7 +654,7 @@ const AddressTab = ({ customer }: any) => {
                 name="address2"
                 value={formData.address2}
                 onChange={handleChange}
-                className="w-full px-4 py-3 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent"
+                className="w-full px-4 py-3 border border-gray-200 rounded-lg"
                 disabled={isSubmitting}
               />
             </div>
@@ -610,7 +671,7 @@ const AddressTab = ({ customer }: any) => {
                   value={formData.city}
                   onChange={handleChange}
                   required
-                  className="w-full px-4 py-3 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent"
+                  className="w-full px-4 py-3 border border-gray-200 rounded-lg"
                   disabled={isSubmitting}
                 />
               </div>
@@ -625,7 +686,7 @@ const AddressTab = ({ customer }: any) => {
                   value={formData.province}
                   onChange={handleChange}
                   required
-                  className="w-full px-4 py-3 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent"
+                  className="w-full px-4 py-3 border border-gray-200 rounded-lg"
                   disabled={isSubmitting}
                 />
               </div>
@@ -640,7 +701,7 @@ const AddressTab = ({ customer }: any) => {
                   value={formData.zip}
                   onChange={handleChange}
                   required
-                  className="w-full px-4 py-3 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent"
+                  className="w-full px-4 py-3 border border-gray-200 rounded-lg"
                   disabled={isSubmitting}
                 />
               </div>
@@ -656,7 +717,7 @@ const AddressTab = ({ customer }: any) => {
                 value={formData.country}
                 onChange={handleChange}
                 required
-                className="w-full px-4 py-3 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent"
+                className="w-full px-4 py-3 border border-gray-200 rounded-lg"
                 disabled={isSubmitting}
               >
                 <option value="United States">United States</option>
@@ -680,7 +741,7 @@ const AddressTab = ({ customer }: any) => {
                 name="phone"
                 value={formData.phone}
                 onChange={handleChange}
-                className="w-full px-4 py-3 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent"
+                className="w-full px-4 py-3 border border-gray-200 rounded-lg"
                 disabled={isSubmitting}
               />
             </div>
@@ -700,7 +761,7 @@ const AddressTab = ({ customer }: any) => {
               </label>
             </div>
 
-            <div className=" flex flex-col md:flex justify-end gap-4 pt-6">
+            <div className="flex flex-col sm:flex-row justify-end gap-4 pt-6">
               <button
                 type="button"
                 onClick={resetForm}
@@ -720,6 +781,7 @@ const AddressTab = ({ customer }: any) => {
           </form>
         </div>
       )}
+
       {/* Address List */}
       <div className="space-y-4">
         {addresses.length === 0 ? (
@@ -735,7 +797,7 @@ const AddressTab = ({ customer }: any) => {
             </button>
           </div>
         ) : (
-          addresses.map((address) => (
+          addresses.map((address: any) => (
             <div key={address.id} className="bg-white border border-gray-100 rounded-2xl p-6">
               <div className="flex justify-between items-start">
                 <div className="flex-1">
@@ -743,7 +805,7 @@ const AddressTab = ({ customer }: any) => {
                     <h3 className="text-lg font-medium text-gray-900">
                       {address.firstName} {address.lastName}
                     </h3>
-                    {address.isDefault && (
+                    {address.id === defaultAddressId && (
                       <span className="bg-primary text-white px-2 py-1 rounded-full text-xs font-medium">
                         Default
                       </span>

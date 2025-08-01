@@ -2,7 +2,7 @@
 import { useState, useTransition } from 'react';
 import { useRouter } from 'next/navigation';
 import type { Customer, Order } from 'lib/customer-client';
-import { updateCustomerAction, customerLogoutAction } from 'lib/actions/customer-actions';
+import { updateCustomerAction, customerLogoutAction,refreshCustomerDataAction } from 'lib/actions/customer-actions';
 import { OrdersTab, ProfileTab, AddressTab } from './tabs';
 import {
     CubeIcon as PackageIcon,    
@@ -58,7 +58,6 @@ export default function AccountClient({
   // Update profile using server action with optimistic updates
   const updateProfile = async (updates: Partial<Customer>) => {
     const previousCustomer = customer;
-    
     // Optimistic update
     setCustomer(prev => ({ ...prev, ...updates }));
 
@@ -75,6 +74,18 @@ export default function AccountClient({
       // Revert on error
       setCustomer(previousCustomer);
       throw error;
+    }
+  };
+
+  const refreshCustomerData = async () => {
+    return
+    try {
+      // Call server action to invalidate cache and refresh data
+      await refreshCustomerDataAction();
+      // The page will automatically refresh with new data due to cache invalidation
+      window.location.reload();
+    } catch (error) {
+      console.error('Error refreshing customer data:', error);
     }
   };
 
@@ -147,6 +158,7 @@ export default function AccountClient({
           {activeTab === 'addresses' && (
             <AddressTab
               customer={customer}
+              onAddressUpdate={refreshCustomerData}
             />
           )}
         </div>

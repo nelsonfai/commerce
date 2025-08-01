@@ -38,6 +38,18 @@ const productFragment = /* GraphQL */ `
             amount
             currencyCode
           }
+          metafields(identifiers: [
+            {namespace: "custom", key: "variant_info"},
+            {namespace: "inventory", key: "warehouse_location"},
+            {namespace: "shipping", key: "dimensions"}
+          ]) {
+            id
+            namespace
+            key
+            value
+            type
+            description
+          }
         }
       }
     }
@@ -56,6 +68,48 @@ const productFragment = /* GraphQL */ `
     }
     tags
     updatedAt
+    metafields(identifiers: [
+      {namespace: "reviews", key: "rating_count"},
+      {namespace: "reviews", key: "rating"},
+      {namespace: "custom", key: "country"}
+    ]) {
+      id
+      namespace
+      key
+      value
+      type
+      description
+      # For single metaobject references
+      reference {
+        ... on Metaobject {
+          id
+          handle
+          type
+          fields {
+            key
+            value
+            type
+          }
+        }
+      }
+      # For list metaobject references
+      references(first: 10) {
+        edges {
+          node {
+            ... on Metaobject {
+              id
+              handle
+              type
+              fields {
+                key
+                value
+                type
+              }
+            }
+          }
+        }
+      }
+    }
   }
   ${imageFragment}
   ${seoFragment}

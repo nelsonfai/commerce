@@ -9,9 +9,7 @@ export default function RegisterForm() {
   const [formData, setFormData] = useState({
     email: '',
     password: '',
-    firstName: '',
-    lastName: '',
-    phone: '',
+
     acceptsMarketing: false
   });
   const [isSubmitting, setIsSubmitting] = useState(false);
@@ -83,45 +81,7 @@ export default function RegisterForm() {
         )}
 
         <form onSubmit={handleSubmit} className="space-y-6">
-          <div className="grid grid-cols-2 gap-4">
-            <div className="space-y-1">
-              <label 
-                htmlFor="firstName" 
-                className="block text-sm font-medium text-slate-700"
-              >
-                First Name
-              </label>
-              <input
-                type="text"
-                id="firstName"
-                name="firstName"
-                value={formData.firstName}
-                onChange={handleChange}
-                className="w-full px-0 py-3 text-secondary bg-transparent border-0 border-b-2 border-slate-200 focus:border-primary focus:outline-none focus:ring-0 transition-colors placeholder:text-slate-400"
-                placeholder="John"
-                disabled={isSubmitting}
-              />
-            </div>
-
-            <div className="space-y-1">
-              <label 
-                htmlFor="lastName" 
-                className="block text-sm font-medium text-slate-700"
-              >
-                Last Name
-              </label>
-              <input
-                type="text"
-                id="lastName"
-                name="lastName"
-                value={formData.lastName}
-                onChange={handleChange}
-                className="w-full px-0 py-3 text-secondary bg-transparent border-0 border-b-2 border-slate-200 focus:border-primary focus:outline-none focus:ring-0 transition-colors placeholder:text-slate-400"
-                placeholder="Doe"
-                disabled={isSubmitting}
-              />
-            </div>
-          </div>
+ 
 
           <div className="space-y-1">
             <label 
@@ -163,24 +123,7 @@ export default function RegisterForm() {
             />
           </div>
 
-          <div className="space-y-1">
-            <label 
-              htmlFor="phone" 
-              className="block text-sm font-medium text-slate-700"
-            >
-              Phone
-            </label>
-            <input
-              type="tel"
-              id="phone"
-              name="phone"
-              value={formData.phone}
-              onChange={handleChange}
-              className="w-full px-0 py-3 text-secondary bg-transparent border-0 border-b-2 border-slate-200 focus:border-primary focus:outline-none focus:ring-0 transition-colors placeholder:text-slate-400"
-              placeholder="+1 (555) 123-4567"
-              disabled={isSubmitting}
-            />
-          </div>
+   
 
           <div className="flex items-start space-x-3 pt-2">
             <div className="flex items-center h-6">

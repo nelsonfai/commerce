@@ -1,4 +1,4 @@
-// app/product/[handle]/page.tsx - Simplified
+// app/product/[handle]/page.tsx 
 import type { Metadata } from 'next';
 import { notFound } from 'next/navigation';
 import ProductCard from 'components/product/product-card';
@@ -131,7 +131,8 @@ async function RelatedProducts({ id }: { id: string }) {
 
   return (
     <div className="py-8 mt-16">
-      <h2 className="mb-4 text-2xl font-bold">Related Products</h2>
+
+      <h2 className="text-3xl font-light text-secondary tracking-tight pb-4">Related Products</h2>
       <ul className="flex w-full gap-4 overflow-x-auto pt-1 relative scrollbar-hide">
         {relatedProducts.map((product) => (
           <li

@@ -560,7 +560,7 @@ export default function SubscriptionBoxClient({ subscriptionBoxes, featuredProdu
               disabled={!selectedBox || !selectedDuration}
               className="inline-flex items-center gap-x-3 rounded-full bg-primary px-8 py-3 text-base font-medium text-white transition-all hover:bg-secondary disabled:opacity-50 disabled:cursor-not-allowed active:scale-95 shadow-lg"
             >
-              Add to Cart & Checkout
+              Add to Cart
               <ArrowRightIcon className="h-5 w-5" />
             </button>
           )}
