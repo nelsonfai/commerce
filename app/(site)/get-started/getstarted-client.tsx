@@ -29,6 +29,7 @@ interface ProductVariant {
 
 interface SubscriptionBox extends Product {
   variants: ProductVariant[];
+  tags: string[];
 }
 
 interface Props {
@@ -48,11 +49,41 @@ interface DurationOption {
   currencyCode: string;
 }
 
+interface BoxSize {
+  size: 'SMALL' | 'MEDIUM' | 'LARGE';
+  tag: string;
+  title: string;
+  description: string;
+}
+
 export default function SubscriptionBoxClient({ subscriptionBoxes, featuredProducts }: Props) {
   const [currentStep, setCurrentStep] = useState(1);
   const [isGift, setIsGift] = useState<boolean | null>(null);
-  const [selectedBox, setSelectedBox] = useState<SubscriptionBox | null>(null);
+  const [selectedBoxSize, setSelectedBoxSize] = useState<BoxSize | null>(null);
+  const [selectedBaseProduct, setSelectedBaseProduct] = useState<SubscriptionBox | null>(null);
   const [selectedDuration, setSelectedDuration] = useState<DurationOption | null>(null);
+
+  // Box size configurations
+  const boxSizes: BoxSize[] = [
+    {
+      size: 'SMALL',
+      tag: 'box-S',
+      title: 'Small Box',
+      description: 'Perfect for trying new flavors'
+    },
+    {
+      size: 'MEDIUM', 
+      tag: 'box-M',
+      title: 'Medium Box',
+      description: 'Great for regular snacking'
+    },
+    {
+      size: 'LARGE',
+      tag: 'box-L', 
+      title: 'Large Box',
+      description: 'Ideal for sharing or heavy snackers'
+    }
+  ];
 
   // Helper function to format currency
   const formatCurrency = (amount: number, currencyCode: string): string => {
@@ -64,78 +95,92 @@ export default function SubscriptionBoxClient({ subscriptionBoxes, featuredProdu
     }).format(amount);
   };
 
-  // Create duration options from variants with correct calculations
-  const getDurationOptions = (subscriptionBox: SubscriptionBox): DurationOption[] => {
-    if (!subscriptionBox.variants || subscriptionBox.variants.length === 0) {
-      return [];
-    }
+  // Get all base products (d-1 tag) for the "How Big Can you Go?" section
+  const getBaseProducts = (): SubscriptionBox[] => {
+    return subscriptionBoxes.filter(box => box.tags.includes('d-1'));
+  };
 
-    // Find the base monthly price (1 month variant)
-    const monthlyVariant = subscriptionBox.variants.find(variant => 
-      variant.selectedOptions.some(option => 
-        option.name.toLowerCase() === 'duration' && option.value === '1'
-      )
-    );
+  // Get box size from a product's tags
+  const getBoxSizeFromProduct = (product: SubscriptionBox): BoxSize | null => {
+    for (const boxSize of boxSizes) {
+      if (product.tags.includes(boxSize.tag)) {
+        return boxSize;
+      }
+    }
+    return null;
+  };
+
+  // Get all duration variants for a specific product's box size
+  const getDurationVariants = (selectedProduct: SubscriptionBox): SubscriptionBox[] => {
+    const boxSize = getBoxSizeFromProduct(selectedProduct);
+    if (!boxSize) return [];
     
-    if (!monthlyVariant) {
-      console.warn('No monthly variant found for subscription box:', subscriptionBox.title);
+    return subscriptionBoxes.filter(box => box.tags.includes(boxSize.tag));
+  };
+
+  // Create duration options from variants
+  const getDurationOptions = (): DurationOption[] => {
+    if (!selectedBaseProduct) return [];
+    
+    const durationVariants = getDurationVariants(selectedBaseProduct);
+    
+    if (durationVariants.length === 0) {
       return [];
     }
 
-    const baseMonthlyPrice = parseFloat(monthlyVariant.price.amount);
-    const currencyCode = monthlyVariant.price.currencyCode;
+    // Find the base product (d-1) to get base price
+    const baseProduct = durationVariants.find(box => box.tags.includes('d-1'));
+    if (!baseProduct) {
+      console.warn('No base product (d-1) found for selected product');
+      return [];
+    }
 
-    return subscriptionBox.variants
-      .map(variant => {
-        // Extract duration from variant options
-        const durationOption = variant.selectedOptions.find(option => 
-          option.name.toLowerCase() === 'duration'
-        );
-        
-        if (!durationOption) return null;
-        
-        const months = parseInt(durationOption.value);
-        if (isNaN(months)) return null;
+    // Get the first variant from base product (should only have one variant per product)
+    const baseVariant = baseProduct.variants[0];
+    if (!baseVariant) {
+      return [];
+    }
 
+    const baseMonthlyPrice = parseFloat(baseVariant.price.amount);
+    const currencyCode = baseVariant.price.currencyCode;
+
+    const durationOptions: DurationOption[] = [];
+
+    // Duration mapping
+    const durationMap = {
+      'd-1': { months: 1, label: '1 Month', popular: false, description: 'Try it out' },
+      'd-3': { months: 3, label: '3 Months', popular: true, description: 'Most popular' },
+      'd-6': { months: 6, label: '6 Months', popular: false, description: 'Great value' },
+      'd-12': { months: 12, label: '12 Months', popular: false, description: 'Best savings' }
+    };
+
+    // Process each duration
+    Object.entries(durationMap).forEach(([durationTag, config]) => {
+      // Find product with this duration tag
+      const durationProduct = durationVariants.find(box => box.tags.includes(durationTag));
+
+      if (durationProduct && durationProduct.variants[0]) {
+        const variant = durationProduct.variants[0];
         const variantPrice = parseFloat(variant.price.amount);
-        
-        // Calculate what the price would be if paying monthly for the same duration
-        const expectedFullPrice = baseMonthlyPrice * months;
-        
-        // Calculate actual savings (difference between expected full price and discounted variant price)
-        const savings = expectedFullPrice - variantPrice;
-        
-        // Calculate discount percentage
+        const expectedFullPrice = baseMonthlyPrice * config.months;
+        const savings = Math.max(0, expectedFullPrice - variantPrice);
         const discount = expectedFullPrice > 0 ? (savings / expectedFullPrice) * 100 : 0;
 
-        // Duration configuration
-        const durationConfig = {
-          1: { label: '1 Month', popular: false, description: 'Try it out' },
-          3: { label: '3 Months', popular: true, description: 'Most popular' },
-          6: { label: '6 Months', popular: false, description: 'Great value' },
-          12: { label: '12 Months', popular: false, description: 'Best savings' }
-        };
-
-        const config = durationConfig[months as keyof typeof durationConfig] || {
-          label: `${months} Month${months > 1 ? 's' : ''}`,
-          popular: false,
-          description: 'Custom duration'
-        };
-
-        return {
-          months,
+        durationOptions.push({
+          months: config.months,
           label: config.label,
           discount,
           popular: config.popular,
           description: config.description,
           variant,
           basePrice: baseMonthlyPrice,
-          savings: Math.max(0, savings), // Ensure savings is never negative
+          savings,
           currencyCode
-        };
-      })
-      .filter((option): option is DurationOption => option !== null)
-      .sort((a, b) => a.months - b.months);
+        });
+      }
+    });
+
+    return durationOptions.sort((a, b) => a.months - b.months);
   };
 
   // Calculate pricing
@@ -164,32 +209,25 @@ export default function SubscriptionBoxClient({ subscriptionBoxes, featuredProdu
   const canProceedToNext = () => {
     switch (currentStep) {
       case 1: return isGift !== null;
-      case 2: return selectedBox !== null;
+      case 2: return selectedBaseProduct !== null;
       case 3: return selectedDuration !== null;
       case 4: return true;
       default: return false;
     }
   };
 
-  // Updated handleFinalCheckout function
+  // Handle final checkout
   const handleFinalCheckout = async () => {
-    if (!selectedBox || !selectedDuration) return;
+    if (!selectedBaseProduct || !selectedDuration) return;
   
-    const subscriptionData = {
-      isGift,
-      selectedBox,
-      selectedDuration,
-      totalPrice: calculateTotalPrice(),
-      savings: calculateSavings(),
-      currencyCode: getCurrencyCode()
-    };
+    const boxSize = getBoxSizeFromProduct(selectedBaseProduct);
   
     try {
       // Customer-friendly attributes for Shopify cart display
       const attributes = [
         {
           key: 'Subscription Details',
-          value: `1 snack box/month for ${selectedDuration.months} months. Paid Upfront`
+          value: `${selectedBaseProduct.title} - 1 snack box/month for ${selectedDuration.months} months. Paid Upfront`
         },
         isGift ? {
           key: 'Gift',
@@ -198,6 +236,10 @@ export default function SubscriptionBoxClient({ subscriptionBoxes, featuredProdu
         {
           key: 'You Saved',
           value: `${getCurrencyCode()} ${calculateSavings().toFixed(2)} (${selectedDuration.discount.toFixed(2)}% off)`
+        },
+        {
+          key: '_internal_box_size',
+          value: boxSize?.size || 'UNKNOWN'
         },
         {
           key: '_internal_discount_percentage',
@@ -223,7 +265,7 @@ export default function SubscriptionBoxClient({ subscriptionBoxes, featuredProdu
           key: '_internal_base_monthly_price',
           value: selectedDuration.basePrice.toString()
         }
-      ].filter(Boolean) as { key: string; value: string; }[]; // Filter out null values and assert the type
+      ].filter(Boolean) as { key: string; value: string; }[];
   
       // Add the item with its attributes
       await addItem(null, selectedDuration.variant.id, attributes);
@@ -254,7 +296,7 @@ export default function SubscriptionBoxClient({ subscriptionBoxes, featuredProdu
     );
   }
 
-  const durationOptions = selectedBox ? getDurationOptions(selectedBox) : [];
+  const durationOptions = getDurationOptions();
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-slate-50 to-white">
@@ -338,7 +380,7 @@ export default function SubscriptionBoxClient({ subscriptionBoxes, featuredProdu
           </div>
         )}
 
-        {/* Step 2: Choose Box */}
+        {/* Step 2: Choose Box Size */}
         {currentStep === 2 && (
           <div className="text-center">
             <h2 className="text-3xl sm:text-4xl font-light leading-tight text-secondary mb-4 tracking-tight">
@@ -348,53 +390,66 @@ export default function SubscriptionBoxClient({ subscriptionBoxes, featuredProdu
               {isGift ? "Pick the perfect size for your gift recipient" : "Select the box that fits your snacking style"}
             </p>
             
-            {subscriptionBoxes.length === 0 ? (
-              <div className="text-center py-16">
-                <div className="w-16 h-16 border-4 border-slate-200 border-t-primary rounded-full animate-spin mx-auto mb-6"></div>
-                <p className="text-slate-500 text-lg mb-2">No subscription boxes available at the moment.</p>
-                <p className="text-slate-400 text-sm">Please check back later or contact support.</p>
-              </div>
-            ) : (
-              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 sm:gap-8">
-                {subscriptionBoxes.map((box) => (
-                  <button
-                    key={box.id}
-                    onClick={() => {
-                      setSelectedBox(box);
-                      setSelectedDuration(null); // Reset duration when box changes
-                    }}
-                    className={`group p-6 rounded-2xl border-2 transition-all duration-300 hover:scale-105 ${
-                      selectedBox?.id === box.id 
-                        ? 'border-primary bg-white shadow-xl ' 
-                        : 'border-slate-200 bg-white hover:border-primary shadow-sm'
-                    }`}
-                  >
-                    <div className="aspect-square mb-6 rounded-xl overflow-hidden bg-slate-50">
-                      <img
-                        src={box.featuredImage?.url || '/placeholder-box.jpg'}
-                        alt={box.featuredImage?.altText || box.title}
-                        className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-300"
-                        onError={(e) => {
-                          const target = e.target as HTMLImageElement;
-                          target.src = '/placeholder-box.jpg';
+            {(() => {
+              const baseProducts = getBaseProducts();
+              
+              if (baseProducts.length === 0) {
+                return (
+                  <div className="text-center py-16">
+                    <p className="text-slate-500 text-lg mb-2">No subscription boxes available at the moment.</p>
+                    <p className="text-slate-400 text-sm">Please check back later or contact support.</p>
+                  </div>
+                );
+              }
+
+              return (
+                <div className="grid grid-cols-1 sm:grid-cols-3 gap-6 sm:gap-8">
+                  {baseProducts.map((product) => {
+                    const boxSize = getBoxSizeFromProduct(product);
+                    
+                    return (
+                      <button
+                        key={product.id}
+                        onClick={() => {
+                          setSelectedBaseProduct(product);
+                          setSelectedBoxSize(boxSize);
+                          setSelectedDuration(null); // Reset duration when box changes
                         }}
-                      />
-                    </div>
-                    <h3 className="text-2xl font-medium mb-3 text-secondary">{box.title}</h3>
-                    <p className="text-slate-600 mb-6 text-sm leading-relaxed font-light">{box.description}</p>
-                    <div className="text-3xl font-light text-primary">
-                      {formatCurrency(parseFloat(box.priceRange.minVariantPrice.amount), box.priceRange.minVariantPrice.currencyCode)}
-                      <span className="text-sm font-normal text-slate-500 ml-1">/month</span>
-                    </div>
-                  </button>
-                ))}
-              </div>
-            )}
+                        className={`group p-6 rounded-2xl border-2 transition-all duration-300 hover:scale-105 ${
+                          selectedBaseProduct?.id === product.id 
+                            ? 'border-primary bg-white shadow-xl ' 
+                            : 'border-slate-200 bg-white hover:border-primary shadow-sm'
+                        }`}
+                      >
+                        <div className="aspect-square mb-6 rounded-xl overflow-hidden bg-slate-50">
+                          <img
+                            src={product.featuredImage?.url || '/placeholder-box.jpg'}
+                            alt={product.featuredImage?.altText || product.title}
+                            className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-300"
+                            onError={(e) => {
+                              const target = e.target as HTMLImageElement;
+                              target.src = '/placeholder-box.jpg';
+                            }}
+                          />
+                        </div>
+                        <h3 className="text-2xl font-medium mb-3 text-secondary">{product.title}</h3>
+                        <p className="text-slate-600 mb-6 text-sm leading-relaxed font-light">{product.description}</p>
+                        <p className="text-sm text-slate-500 mb-2">Starting</p>
+                        <div className="text-3xl font-light text-primary">
+                          {formatCurrency(parseFloat(product.priceRange.minVariantPrice.amount), product.priceRange.minVariantPrice.currencyCode)}
+                          <span className="text-sm font-normal text-slate-500 ml-1">/month</span>
+                        </div>
+                      </button>
+                    );
+                  })}
+                </div>
+              );
+            })()}
           </div>
         )}
 
         {/* Step 3: Duration */}
-        {currentStep === 3 && selectedBox && (
+        {currentStep === 3 && selectedBaseProduct && (
           <div className="text-center">
             <h2 className="text-3xl sm:text-4xl font-light leading-tight text-secondary mb-4 tracking-tight">
               Choose Your Duration
@@ -469,18 +524,18 @@ export default function SubscriptionBoxClient({ subscriptionBoxes, featuredProdu
             )}
 
             {/* Selected Box Summary */}
-            {selectedDuration && (
+            {selectedDuration && selectedBaseProduct && (
               <div className="mt-16 p-6 bg-white/80 rounded-2xl border border-slate-200 backdrop-blur-sm">
                 <h3 className="text-lg font-medium mb-6 text-secondary">Your Selection Summary</h3>
                 <div className="flex items-center justify-between">
                   <div className="flex items-center gap-4">
                     <img 
-                      src={selectedBox.featuredImage?.url || '/placeholder-box.jpg'} 
-                      alt={selectedBox.title}
+                      src={selectedBaseProduct.featuredImage?.url || '/placeholder-box.jpg'} 
+                      alt={selectedBaseProduct.title}
                       className="w-16 h-16 rounded-xl object-cover shadow-sm"
                     />
                     <div className="text-left">
-                      <h4 className="font-medium text-secondary">{selectedBox.title}</h4>
+                      <h4 className="font-medium text-secondary">{selectedBaseProduct.title}</h4>
                       <p className="text-sm text-slate-500 font-light">
                         {selectedDuration.label} subscription
                       </p>
@@ -557,7 +612,7 @@ export default function SubscriptionBoxClient({ subscriptionBoxes, featuredProdu
           ) : (
             <button
               onClick={handleFinalCheckout}
-              disabled={!selectedBox || !selectedDuration}
+              disabled={!selectedBaseProduct || !selectedDuration}
               className="inline-flex items-center gap-x-3 rounded-full bg-primary px-8 py-3 text-base font-medium text-white transition-all hover:bg-secondary disabled:opacity-50 disabled:cursor-not-allowed active:scale-95 shadow-lg"
             >
               Add to Cart

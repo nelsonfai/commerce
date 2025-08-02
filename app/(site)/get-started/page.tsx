@@ -4,55 +4,41 @@ import { getCollectionProducts } from 'lib/shopify';
 import SubscriptionBoxClient from './getstarted-client';
 import { Metadata } from 'next';
 
-interface SubscriptionBoxPageProps {}
-
 export default async function SubscriptionBoxPage(): Promise<React.JSX.Element> {
   try {
-    const subscriptionHandles = [
-      'hidden-subscription-boxes',
-    ];
-
-    let subscriptionBoxes = null;
-
-    // Find working subscription collection handle
-    for (const handle of subscriptionHandles) {
-      const result = await getCollectionProducts({ collection: "hidden-subscription-boxes" });
-      console.log('Get Collection Products', result);
-      if (result?.length > 0) {
-        subscriptionBoxes = result;
-        break;
-      }
-    }
-
-    // Fetch featured products and fallback for subscription if needed
-    const [featuredProducts] = await Promise.all([
+    // Fetch subscription bundles and featured products
+    const [subscriptionBundles, featuredProducts] = await Promise.all([
+      getCollectionProducts({ collection: 'subscription-bundles' }),
       getCollectionProducts({ collection: 'featured-snacks' })
-    ]);
+    ])
 
-    if (!featuredProducts?.length) {
-      throw new Error('Failed to fetch featured products');
+
+    if (!subscriptionBundles?.length) {
+      console.warn('No subscription bundles found');
     }
 
     return (
       <SubscriptionBoxClient 
-        subscriptionBoxes={subscriptionBoxes || []}
-        featuredProducts={featuredProducts}
+        subscriptionBoxes={subscriptionBundles || []}
+        featuredProducts={featuredProducts || []}
       />
     );
-    
+        
   } catch (error) {
+    console.error('Error loading subscription data:', error);
+    
     return (
       <div className="min-h-screen bg-gray-50 flex items-center justify-center">
-        <div className="text-center">
+        <div className="text-center max-w-md mx-auto px-4">
           <h1 className="text-2xl font-bold text-red-600 mb-4">
             Unable to Load Subscription Data
           </h1>
-          <p className="text-gray-600 mb-4">
+          <p className="text-gray-600 mb-6">
             We're having trouble loading the subscription boxes. Please try again later.
           </p>
           <button 
             onClick={() => window.location.reload()}
-            className="bg-[#E84A25] text-white px-6 py-2 rounded-lg hover:bg-[#d43d1a]"
+            className="bg-[#E84A25] text-white px-6 py-3 rounded-lg hover:bg-[#d43d1a] transition-colors"
           >
             Retry
           </button>
