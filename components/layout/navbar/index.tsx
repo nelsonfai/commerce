@@ -99,20 +99,21 @@ export async function Navbar() {
       </nav>
 
       {/* Sub Navigation Categories */}
-      <div className="bg-gray-50   border-b border-slate-200/50 ">
+      <div className="bg-primary">
         <div className="px-4 sm:px-6 lg:px-8">
           <div className="overflow-hidden">
-            <ul className="flex items-center gap-6 lg:gap-8 overflow-x-auto scrollbar-hide py-3">
+            <ul className="flex  items-center gap-6 lg:gap-8 overflow-x-auto scrollbar-hide py-3">
               {subCategories.map((item, index) => (
                 <li key={item.title} className="flex-shrink-0">
                   <Link
                     href={item.path}
                     prefetch={true}
-                    className="relative group flex items-center gap-2 text-sm font-medium text-black    transition-all duration-200 whitespace-nowrap"
+                    className="relative group flex items-center gap-2 text-sm font-medium text-white hover:text-gray-200 transition-all duration-200 whitespace-nowrap"
                   >
                     <CategoryIcon index={index} />
-                    {item.title}
-                    <span className="absolute inset-x-0 -bottom-3 h-0.5 bg-slate-900 dark:bg-white scale-x-0 group-hover:scale-x-100 transition-transform origin-center" />
+                    <span className='text-sm text-white'>{item.title}</span>
+                    
+                    <span className="absolute inset-x-0 -bottom-3 h-0.5 bg-white scale-x-0 group-hover:scale-x-100 transition-transform origin-center" />
                   </Link>
                 </li>
               ))}
@@ -135,10 +136,10 @@ export async function Navbar() {
 
 function CategoryIcon({ index }: { index: number }) {
   const icons = [
-    <Bars3Icon key="collections" className="w-4 h-4" />, // Collections
-    <BuildingStorefrontIcon key="store" className="w-4 h-4" />, // Store
-    <CubeIcon key="snacks" className="w-4 h-4" />, // Snack Boxes
-    <BeakerIcon key="drinks" className="w-4 h-4" />, // Drinks
+    <Bars3Icon key="collections" className="w-4 h-4 text-white" />, // Collections
+    <BuildingStorefrontIcon key="store" className="w-4 h-4 text-white" />, // Store
+    <CubeIcon key="snacks" className="w-4 h-4 text-white" />, // Snack Boxes
+    <BeakerIcon key="drinks" className="w-4 h-4 text-white" />, // Drinks
   ];
   
   return icons[index] || icons[0];
@@ -150,4 +151,3 @@ function MenuSkeleton() {
     <div className="w-6 h-6 bg-slate-200 dark:bg-slate-700 rounded animate-pulse" />
   );
 }
-

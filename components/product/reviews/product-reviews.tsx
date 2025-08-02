@@ -236,15 +236,16 @@ export default function ProductReviews({ productHandle, productTitle, productId 
   return (
     <div className="mt-12 px-4">
       <div className="max-w-7xl ">
-        <div className="flex items-center justify-between mb-8">
-          <h3 className="text-2xl font-light text-secondary">Customer Reviews</h3>
-          <button
-            onClick={() => setShowForm(true)}
-            className="px-6 py-2 bg-primary text-white rounded-full font-medium hover:bg-secondary transition-all duration-200 active:scale-95"
-          >
-            Write Review
-          </button>
-        </div>
+      <div className="flex items-center justify-between mb-8">
+  <h3 className="text-2xl font-light text-secondary">Customer Reviews</h3>
+  <button
+    onClick={() => setShowForm(true)}
+    className="px-6 py-2 bg-primary text-white rounded-full font-medium hover:bg-secondary transition-all duration-200 active:scale-95 md:px-6 md:py-2 px-3 py-3"
+  >
+    <span className="hidden md:inline">Write Review</span>
+    <span className="md:hidden text-xl font-medium">+</span>
+  </button>
+</div>
 
         {message && (
           <div className={`mb-6 p-4 rounded-lg border-l-4 ${message.includes('successfully')

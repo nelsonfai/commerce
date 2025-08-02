@@ -24,7 +24,7 @@ function UserAvatar({ user }: { user: any }) {
   };
 
   return (
-    <div className="flex h-8 w-8 items-center justify-center rounded-full bg-gray-600 text-white text-sm font-medium">
+    <div className="flex h-8 w-8 items-center justify-center rounded-full bg-secondary text-white text-sm font-medium">
       {getInitials()}
     </div>
   );

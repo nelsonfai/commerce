@@ -90,7 +90,7 @@ const ProductCard: React.FC<ProductCardProps> = ({
           )}
           onClick={handleCardClick}
         >
-          <div className="relative rounded-lg overflow-hidden bg-[#f9f7f2]">
+          <div className="relative rounded-lg overflow-hidden bg-accent">
             <img
               src={product.featuredImage.url}
               alt={product.title}

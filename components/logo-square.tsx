@@ -9,7 +9,7 @@ export default function LogoSquare({ size }: { size?: 'sm' }) {
       <LogoIcon
         className={clsx(
           'hidden sm:block', // hidden on mobile, shown on sm+
-          size === 'sm' ? 'w-[90px]' : 'w-[154px]'
+          size === 'sm' ? 'w-[105px]' : 'w-[154px]'
         )}
       />
 
@@ -17,7 +17,7 @@ export default function LogoSquare({ size }: { size?: 'sm' }) {
       <LogoIconMobile
         className={clsx(
           'block sm:hidden', // visible on mobile only
-          size === 'sm' ? 'w-[90px]' : 'w-[154px]'
+          size === 'sm' ? 'w-[45px]' : 'w-[154px]'
         )}
       />
     </>

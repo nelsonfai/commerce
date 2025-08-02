@@ -61,7 +61,7 @@ const ImageCarouselSection = () => {
    
   return (
     <>
-      <section className="relative min-h-[80vh] flex items-center justify-center overflow-hidden">
+      <section className="relative min-h-[70vh] md:min-h-[75vh] flex items-center justify-center overflow-hidden">
         {/* Background Image with Smooth Transition */}
         <div className="absolute inset-0">
           {/* Main Background Image */}
@@ -70,7 +70,6 @@ const ImageCarouselSection = () => {
             style={{
               backgroundImage: `url('${currentImage?.image || '/hero/hero_1.png'}')`,
               opacity: isTransitioning ? 0.7 : 1,
-              transform: isTransitioning ? 'scale(1.05)' : 'scale(1)'
             }}
           />
           

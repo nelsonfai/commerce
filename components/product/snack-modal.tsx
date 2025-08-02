@@ -70,7 +70,7 @@ const SnackModal: React.FC<SnackModalProps> = ({
             <img
               src={product?.featuredImage.url}
               alt={product.title}
-              className="w-full aspect-[4/3] object-cover rounded-xl bg-slate-100"
+              className="w-full aspect-[4/3] object-cover rounded-xl bg-accent"
               loading="lazy"
             />
           </div>

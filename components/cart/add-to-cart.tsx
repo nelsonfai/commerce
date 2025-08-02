@@ -210,7 +210,7 @@ function AddToCartButton({
           <span >
             <ShoppingCartIcon className="h-5 w-5 " />
           </span>
-          <span className="ml-2">{pending ? 'Adding...' : ' Add To Carts'}</span>
+          <span className="ml-2">{pending ? 'Adding...' : ' Add To Cart'}</span>
         </>
       )}
     </button>
