@@ -18,7 +18,7 @@ export default function CollectionLayout({
           <div className="flex flex-col gap-6 lg:flex-row lg:items-end lg:justify-between">
               {/* Page Title & Breadcrumb */}
               <div className="flex-1 ">
-                <h1 className="text-2xl sm:text-3xl font-light text-slate-900 tracking-tight">
+                <h1 className="text-2xl sm:text-3xl font-light text-secondary tracking-tight">
                   Browse Collections
                 </h1>
                 <p className="text-slate-600 mt-1 font-light">

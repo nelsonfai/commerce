@@ -8,8 +8,8 @@ export default function LogoSquare({ size }: { size?: 'sm' }) {
       {/* Desktop Logo */}
       <LogoIcon
         className={clsx(
-          'hidden sm:block', // hidden on mobile, shown on sm+
-          size === 'sm' ? 'w-[105px]' : 'w-[154px]'
+          'hidden sm:block ', // hidden on mobile, shown on sm+
+          size === 'sm' ? 'w-[120px]' : 'w-[154px]'
         )}
       />
 

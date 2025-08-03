@@ -62,7 +62,7 @@ export async function Navbar() {
                       key={item.title}
                       href={item.path}
                       prefetch={true}
-                      className="relative text-sm font-medium text-black   dark:hover:text-white transition-colors group"
+                      className="relative text-sm  text-secondary   dark:hover:text-white transition-colors group"
                     >
                       {item.title}
                       <span className="absolute inset-x-0 -bottom-1 h-0.5 bg-slate-900 dark:bg-white scale-x-0 group-hover:scale-x-100 transition-transform origin-left" />
@@ -108,7 +108,7 @@ export async function Navbar() {
                   <Link
                     href={item.path}
                     prefetch={true}
-                    className="relative group flex items-center gap-2 text-sm font-medium text-white hover:text-gray-200 transition-all duration-200 whitespace-nowrap"
+                    className="relative group flex items-center gap-2 text-sm  text-white hover:text-gray-200 transition-all duration-200 whitespace-nowrap"
                   >
                     <CategoryIcon index={index} />
                     <span className='text-sm text-white'>{item.title}</span>

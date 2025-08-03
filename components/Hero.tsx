@@ -132,7 +132,7 @@ const ImageCarouselSection = () => {
       </section>
 
       {/* How It Works - 3 Steps */}
-      <section className="py-8 mt-8 sm:py-12 lg:py-16 px-4 sm:px-6 lg:px-8 bg-bgLight">
+      <section className="py-8  sm:py-12 lg:py-16 px-4 sm:px-6 lg:px-8 bg-bgLight">
       <div className="max-w-7xl mx-auto">
         <h2 className="text-2xl sm:text-3xl lg:text-4xl font-bold leading-tight text-center mb-8 sm:mb-10 lg:mb-12 text-secondary">
           How It Works
