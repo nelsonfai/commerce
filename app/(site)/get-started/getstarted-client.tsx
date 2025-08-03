@@ -301,15 +301,15 @@ export default function SubscriptionBoxClient({ subscriptionBoxes, featuredProdu
   return (
     <div className="min-h-screen bg-gradient-to-br from-slate-50 to-white">
       {/* Progress Bar */}
-      <div className="bg-white/80 backdrop-blur-sm shadow-sm border-b border-slate-100">
+      <div className="bg-white/80 backdrop-blur-sm    border-b border-slate-100">
         <div className="max-w-4xl mx-auto px-4 py-6">
           <div className="flex items-center justify-between">
             {steps.map((step, index) => (
               <div key={index} className="flex items-center">
                 <div className={`flex items-center justify-center w-10 h-10 rounded-full transition-all ${
                   index + 1 <= currentStep 
-                    ? 'bg-primary text-white shadow-lg' 
-                    : 'border-2 border-slate-200 text-slate-400 bg-white'
+                    ? 'bg-primary text-white ' 
+                    : 'border-2 border-gray-100 text-slate-400 bg-white'
                 }`}>
                   {index + 1 < currentStep ? (
                     <CheckIcon className="h-5 w-5" />
@@ -326,7 +326,7 @@ export default function SubscriptionBoxClient({ subscriptionBoxes, featuredProdu
                 </div>
                 {index < steps.length - 1 && (
                   <div className={`hidden sm:block w-16 h-0.5 ml-6 rounded-full transition-colors ${
-                    index + 1 < currentStep ? 'bg-primary' : 'bg-slate-200'
+                    index + 1 < currentStep ? 'bg-primary' : 'bg-gray-100'
                   }`} />
                 )}
               </div>
@@ -351,8 +351,8 @@ export default function SubscriptionBoxClient({ subscriptionBoxes, featuredProdu
                 onClick={() => setIsGift(false)}
                 className={`group p-8 rounded-2xl border-2 transition-all duration-300 hover:scale-105 ${
                   isGift === false 
-                    ? 'border-primary bg-primary text-white shadow-xl' 
-                    : 'border-slate-200 bg-white text-slate-700 hover:border-primary shadow-sm'
+                    ? 'border-primary bg-primary text-white    ' 
+                    : 'border-gray-100 bg-white text-slate-700 hover:border-primary   '
                 }`}
               >
                 <UserIcon className={`h-16 w-16 mx-auto mb-6 transition-transform group-hover:scale-110 ${
@@ -366,8 +366,8 @@ export default function SubscriptionBoxClient({ subscriptionBoxes, featuredProdu
                 onClick={() => setIsGift(true)}
                 className={`group p-8 rounded-2xl border-2 transition-all duration-300 hover:scale-105 ${
                   isGift === true 
-                    ? 'border-primary bg-primary text-white shadow-xl' 
-                    : 'border-slate-200 bg-white text-slate-700 hover:border-primary shadow-sm'
+                    ? 'border-primary bg-primary text-white    ' 
+                    : 'border-gray-100 bg-white text-slate-700 hover:border-primary   '
                 }`}
               >
                 <GiftIcon className={`h-16 w-16 mx-auto mb-6 transition-transform group-hover:scale-110 ${
@@ -417,11 +417,11 @@ export default function SubscriptionBoxClient({ subscriptionBoxes, featuredProdu
                         }}
                         className={`group p-6 rounded-2xl border-2 transition-all duration-300 hover:scale-105 ${
                           selectedBaseProduct?.id === product.id 
-                            ? 'border-primary bg-white shadow-xl ' 
-                            : 'border-slate-200 bg-white hover:border-primary shadow-sm'
+                            ? 'border-primary bg-white     ' 
+                            : 'border-gray-100 bg-white hover:border-primary   '
                         }`}
                       >
-                        <div className="aspect-square mb-6 rounded-xl overflow-hidden bg-slate-50">
+                        <div className="aspect-square mb-6 rounded-xl overflow-hidden bg-accent">
                           <img
                             src={product.featuredImage?.url || '/placeholder-box.jpg'}
                             alt={product.featuredImage?.altText || product.title}
@@ -477,13 +477,13 @@ export default function SubscriptionBoxClient({ subscriptionBoxes, featuredProdu
                       disabled={!duration.variant.availableForSale}
                       className={`group relative p-6 rounded-2xl border-2 transition-all duration-300 hover:scale-105 ${
                         selectedDuration?.variant.id === duration.variant.id 
-                          ? 'border-primary bg-white shadow-xl ' 
-                          : 'border-slate-200 bg-white hover:border-primary shadow-sm'
+                          ? 'border-primary bg-white     ' 
+                          : 'border-gray-100 bg-white hover:border-primary   '
                       } ${!duration.variant.availableForSale ? 'opacity-50 cursor-not-allowed' : ''}`}
                     >
                       {duration.popular && (
                         <div className="absolute -top-3 left-1/2 transform -translate-x-1/2">
-                          <span className="bg-primary text-white px-4 py-1 rounded-full text-xs font-medium shadow-lg">
+                          <span className="bg-primary text-white px-4 py-1 rounded-full text-xs font-medium  ">
                             POPULAR
                           </span>
                         </div>
@@ -525,14 +525,14 @@ export default function SubscriptionBoxClient({ subscriptionBoxes, featuredProdu
 
             {/* Selected Box Summary */}
             {selectedDuration && selectedBaseProduct && (
-              <div className="mt-16 p-6 bg-white/80 rounded-2xl border border-slate-200 backdrop-blur-sm">
+              <div className="mt-16 p-6 bg-white/80 rounded-2xl border border-gray-100 backdrop-blur-sm">
                 <h3 className="text-lg font-medium mb-6 text-secondary">Your Selection Summary</h3>
                 <div className="flex items-center justify-between">
                   <div className="flex items-center gap-4">
                     <img 
                       src={selectedBaseProduct.featuredImage?.url || '/placeholder-box.jpg'} 
                       alt={selectedBaseProduct.title}
-                      className="w-16 h-16 rounded-xl object-cover shadow-sm"
+                      className="w-16 h-16 rounded-xl object-cover   "
                     />
                     <div className="text-left">
                       <h4 className="font-medium text-secondary">{selectedBaseProduct.title}</h4>
@@ -594,7 +594,7 @@ export default function SubscriptionBoxClient({ subscriptionBoxes, featuredProdu
           <button
             onClick={prevStep}
             disabled={currentStep === 1}
-            className="inline-flex items-center gap-x-3 rounded-full bg-slate-100 px-6 py-3 text-base font-medium text-slate-600 transition-all hover:bg-slate-200 disabled:opacity-50 disabled:cursor-not-allowed active:scale-95"
+            className="inline-flex items-center gap-x-3 rounded-full bg-slate-100 px-6 py-3 text-base font-medium text-slate-600 transition-all hover:bg-gray-100 disabled:opacity-50 disabled:cursor-not-allowed active:scale-95"
           >
             <ArrowLeftIcon className="h-5 w-5" />
             Back
@@ -604,7 +604,7 @@ export default function SubscriptionBoxClient({ subscriptionBoxes, featuredProdu
             <button
               onClick={nextStep}
               disabled={!canProceedToNext()}
-              className="inline-flex items-center gap-x-3 rounded-full bg-primary px-8 py-3 text-base font-medium text-white transition-all hover:bg-secondary disabled:opacity-50 disabled:cursor-not-allowed active:scale-95 shadow-lg"
+              className="inline-flex items-center gap-x-3 rounded-full bg-primary px-8 py-3 text-base font-medium text-white transition-all hover:bg-secondary disabled:opacity-50 disabled:cursor-not-allowed active:scale-95  "
             >
               Continue
               <ArrowRightIcon className="h-5 w-5" />
@@ -613,7 +613,7 @@ export default function SubscriptionBoxClient({ subscriptionBoxes, featuredProdu
             <button
               onClick={handleFinalCheckout}
               disabled={!selectedBaseProduct || !selectedDuration}
-              className="inline-flex items-center gap-x-3 rounded-full bg-primary px-8 py-3 text-base font-medium text-white transition-all hover:bg-secondary disabled:opacity-50 disabled:cursor-not-allowed active:scale-95 shadow-lg"
+              className="inline-flex items-center gap-x-3 rounded-full bg-primary px-8 py-3 text-base font-medium text-white transition-all hover:bg-secondary disabled:opacity-50 disabled:cursor-not-allowed active:scale-95  "
             >
               Add to Cart
               <ArrowRightIcon className="h-5 w-5" />

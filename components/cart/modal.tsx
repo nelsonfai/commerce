@@ -74,8 +74,9 @@ export default function CartModal() {
             leaveFrom="translate-x-0"
             leaveTo="translate-x-full"
           >
-            <Dialog.Panel className="fixed bottom-0 right-0 top-0 flex h-full w-full flex-col bg-white p-6 text-black md:w-[390px] ">
-              <div className="flex items-center justify-between mb-6">
+            <Dialog.Panel className="fixed bottom-0 right-0 top-0 flex h-full w-full flex-col bg-white text-black md:w-[390px]">
+              {/* Header - Fixed */}
+              <div className="flex items-center justify-between p-6 pb-4 border-b border-neutral-100">
                 <p className="text-lg font-medium">Cart</p>
                 <button aria-label="Close cart" onClick={closeCart}>
                   <CloseCart />
@@ -83,169 +84,172 @@ export default function CartModal() {
               </div>
 
               {!cart || cart.lines.length === 0 ? (
-                <div className="flex-1 flex flex-col items-center justify-center">
+                <div className="flex-1 flex flex-col items-center justify-center p-6">
                   <ShoppingCartIcon className="h-12 w-12 text-neutral-400" />
-                  <p className="mt-4 text-neutral-600 ">
+                  <p className="mt-4 text-neutral-600">
                     Your cart is empty
                   </p>
                 </div>
               ) : (
-                <div className="flex h-full flex-col">
+                <>
+                  {/* Scrollable content area */}
                   <div className="flex-1 overflow-auto">
-                    {cart.lines
-                      .sort((a, b) =>
-                        a.merchandise.product.title.localeCompare(
-                          b.merchandise.product.title
+                    <div className="p-6 pt-4">
+                      {cart.lines
+                        .sort((a, b) =>
+                          a.merchandise.product.title.localeCompare(
+                            b.merchandise.product.title
+                          )
                         )
-                      )
-                      .map((item, i) => {
-                        const merchandiseSearchParams =
-                          {} as MerchandiseSearchParams;
+                        .map((item, i) => {
+                          const merchandiseSearchParams =
+                            {} as MerchandiseSearchParams;
 
-                        item.merchandise.selectedOptions.forEach(
-                          ({ name, value }) => {
-                            if (value !== DEFAULT_OPTION) {
-                              merchandiseSearchParams[name.toLowerCase()] =
-                                value;
+                          item.merchandise.selectedOptions.forEach(
+                            ({ name, value }) => {
+                              if (value !== DEFAULT_OPTION) {
+                                merchandiseSearchParams[name.toLowerCase()] =
+                                  value;
+                              }
                             }
-                          }
-                        );
+                          );
 
-                        const merchandiseUrl = createUrl(
-                          `/product/${item.merchandise.product.handle}`,
-                          new URLSearchParams(merchandiseSearchParams)
-                        );
+                          const merchandiseUrl = createUrl(
+                            `/product/${item.merchandise.product.handle}`,
+                            new URLSearchParams(merchandiseSearchParams)
+                          );
 
-                        // Helper function to get attribute value
-                        const getAttributeValue = (key: string) => {
-                          return item.attributes?.find(attr => attr.key === key)?.value;
-                        };
+                          // Helper function to get attribute value
+                          const getAttributeValue = (key: string) => {
+                            return item.attributes?.find(attr => attr.key === key)?.value;
+                          };
 
-                        const isGift = getAttributeValue('Gift') 
-                        const subscriptionDuration = getAttributeValue('_internal_subscription_duration');
-                        const savedPrice = getAttributeValue('_internal_savings_amount');
+                          const isGift = getAttributeValue('Gift') 
+                          const subscriptionDuration = getAttributeValue('_internal_subscription_duration');
+                          const savedPrice = getAttributeValue('_internal_savings_amount');
 
-                        return (
-                          <div
-                            key={i}
-                            className="flex items-start gap-4 py-4 border-b border-neutral-100  last:border-b-0">
-                            <div className="relative">
-                              <div className="absolute -top-2 -left-0 z-10 ">
-                                <DeleteItemButton
-                                  item={item}
-                                  optimisticUpdate={updateCartItem}
-                                />
+                          return (
+                            <div
+                              key={i}
+                              className="flex items-start gap-4 py-4 border-b border-neutral-100 last:border-b-0">
+                              <div className="relative">
+                                <div className="absolute -top-2 -left-0 z-10">
+                                  <DeleteItemButton
+                                    item={item}
+                                    optimisticUpdate={updateCartItem}
+                                  />
+                                </div>
+                                <div className="relative h-16 w-16 overflow-hidden rounded bg-neutral-100">
+                                  <Image
+                                    className="h-full w-full object-cover"
+                                    width={64}
+                                    height={64}
+                                    alt={
+                                      item.merchandise.product.featuredImage
+                                        .altText ||
+                                      item.merchandise.product.title
+                                    }
+                                    src={
+                                      item.merchandise.product.featuredImage.url
+                                    }
+                                  />
+                                </div>
                               </div>
-                              <div className="relative h-16 w-16 overflow-hidden rounded bg-neutral-100">
-                                <Image
-                                  className="h-full w-full object-cover"
-                                  width={64}
-                                  height={64}
-                                  alt={
-                                    item.merchandise.product.featuredImage
-                                      .altText ||
-                                    item.merchandise.product.title
-                                  }
-                                  src={
-                                    item.merchandise.product.featuredImage.url
-                                  }
-                                />
-                              </div>
-                            </div>
 
-                            <div className="flex-1 min-w-0">
-                              <Link
-                                href={merchandiseUrl}
-                                onClick={closeCart}
-                                className="block group"
-                              >
-                                <h3 className="font-medium text-sm leading-tight mb-1 group-hover:text-neutral-600 ">
-                                  {item.merchandise.product.title}
-                                </h3>
-                                {item.merchandise.title !== DEFAULT_OPTION && (
-                                  <p className="text-xs text-neutral-500  mb-2" hidden>
-                                    {item.merchandise.title}
-                                  </p>
-                                )}
-                                
-                                {/* Minimalist attribute display */}
-                                <div className="space-y-1 mb-3">
-                                  {subscriptionDuration && (
-                                    <p className="text-xs text-neutral-600 ">
-                                      1 snack box/month for {subscriptionDuration} months. Paid upfront.
+                              <div className="flex-1 min-w-0">
+                                <Link
+                                  href={merchandiseUrl}
+                                  onClick={closeCart}
+                                  className="block group"
+                                >
+                                  <h3 className="font-medium text-sm leading-tight mb-1 group-hover:text-neutral-600">
+                                    {item.merchandise.product.title}
+                                  </h3>
+                                  {item.merchandise.title !== DEFAULT_OPTION && (
+                                    <p className="text-xs text-neutral-500 mb-2" hidden>
+                                      {item.merchandise.title}
                                     </p>
                                   )}
                                   
-                                  {isGift && (
-                                    <p className="text-xs text-neutral-600   flex items-center gap-1">
-                                     <GiftIcon className="h-4 w-4 text-neutral-500"/> Gift subscription
-                                    </p>
-                                  )}
-                                  
-                                  {savedPrice && savedPrice !== '0' && (
-                                    <div className="text-xs text-neutral-600   flex items-center gap-1">
-                                     Save 
-                                        <Price
-                                      className="text-xs text-neutral-600  "
-                                      amount={savedPrice}
-                                      currencyCode={
-                                        item.cost.totalAmount.currencyCode
-                                      }
+                                  {/* Minimalist attribute display */}
+                                  <div className="space-y-1 mb-3">
+                                    {subscriptionDuration && (
+                                      <p className="text-xs text-neutral-600">
+                                        1 snack box/month for {subscriptionDuration} months. Paid upfront.
+                                      </p>
+                                    )}
+                                    
+                                    {isGift && (
+                                      <p className="text-xs text-neutral-600 flex items-center gap-1">
+                                       <GiftIcon className="h-4 w-4 text-neutral-500"/> Gift subscription
+                                      </p>
+                                    )}
+                                    
+                                    {savedPrice && savedPrice !== '0' && (
+                                      <div className="text-xs text-neutral-600 flex items-center gap-1">
+                                       Save 
+                                          <Price
+                                        className="text-xs text-neutral-600"
+                                        amount={savedPrice}
+                                        currencyCode={
+                                          item.cost.totalAmount.currencyCode
+                                        }
+                                      />
+                                      </div>
+                                    )}
+                                  </div>
+                                </Link>
+
+                                {/* Quantity and Price row */}
+                                <div className="flex items-center justify-between">
+                                  {/* Quantity controls on the left */}
+                                  <div className="flex items-center rounded-full border border-neutral-200">
+                                    <EditItemQuantityButton
+                                      item={item}
+                                      type="minus"
+                                      optimisticUpdate={updateCartItem}
                                     />
-                                    </div>
-                                  )}
-                                </div>
-                              </Link>
+                                    <span className="px-3 py-1 text-sm min-w-[2rem] text-center">
+                                      {item.quantity}
+                                    </span>
+                                    <EditItemQuantityButton
+                                      item={item}
+                                      type="plus"
+                                      optimisticUpdate={updateCartItem}
+                                    />
+                                  </div>
 
-                              {/* Quantity and Price row */}
-                              <div className="flex items-center justify-between">
-                                {/* Quantity controls on the left */}
-                                <div className="flex items-center rounded-full border border-neutral-200 ">
-                                  <EditItemQuantityButton
-                                    item={item}
-                                    type="minus"
-                                    optimisticUpdate={updateCartItem}
-                                  />
-                                  <span className="px-3 py-1 text-sm min-w-[2rem] text-center">
-                                    {item.quantity}
-                                  </span>
-                                  <EditItemQuantityButton
-                                    item={item}
-                                    type="plus"
-                                    optimisticUpdate={updateCartItem}
+                                  {/* Price on the right */}
+                                  <Price
+                                    className="text-sm font-medium"
+                                    amount={item.cost.totalAmount.amount}
+                                    currencyCode={
+                                      item.cost.totalAmount.currencyCode
+                                    }
                                   />
                                 </div>
-
-                                {/* Price on the right */}
-                                <Price
-                                  className="text-sm font-medium"
-                                  amount={item.cost.totalAmount.amount}
-                                  currencyCode={
-                                    item.cost.totalAmount.currencyCode
-                                  }
-                                />
                               </div>
                             </div>
-                          </div>
-                        );
-                      })}
+                          );
+                        })}
+                    </div>
                   </div>
 
-                  {/* Summary section */}
-                  <div className="border-t border-neutral-100  pt-4 mt-4">
-                    <div className="space-y-3 text-sm">
+                  {/* Fixed footer with summary and checkout button */}
+                  <div className="border-t border-neutral-100 bg-white p-6">
+                    <div className="space-y-3 text-sm mb-6">
                       <div className="flex justify-between">
-                        <span className="text-neutral-600  ">Taxes</span>
+                        <span className="text-neutral-600">Taxes</span>
                         <Price
                           amount={cart.cost.totalTaxAmount.amount}
                           currencyCode={cart.cost.totalTaxAmount.currencyCode}
                         />
                       </div>
                       <div className="flex justify-between">
-                        <span className="text-neutral-600  ">Shipping</span>
-                        <span className="text-neutral-600  ">At checkout</span>
+                        <span className="text-neutral-600">Shipping</span>
+                        <span className="text-neutral-600">At checkout</span>
                       </div>
-                      <div className="flex justify-between pt-2 border-t border-neutral-100 ">
+                      <div className="flex justify-between pt-2 border-t border-neutral-100">
                         <span className="font-medium">Total</span>
                         <Price
                           className="font-medium"
@@ -255,11 +259,11 @@ export default function CartModal() {
                       </div>
                     </div>
 
-                    <form action={redirectToCheckout} className="mt-6">
+                    <form action={redirectToCheckout}>
                       <CheckoutButton />
                     </form>
                   </div>
-                </div>
+                </>
               )}
             </Dialog.Panel>
           </Transition.Child>
@@ -271,10 +275,10 @@ export default function CartModal() {
 
 function CloseCart({ className }: { className?: string }) {
   return (
-    <div className="flex h-8 w-8 items-center justify-center rounded-full hover:bg-neutral-100  transition-colors">
+    <div className="flex h-8 w-8 items-center justify-center rounded-full hover:bg-neutral-100 transition-colors">
       <XMarkIcon
         className={clsx(
-          'h-5 w-5 text-neutral-600  ',
+          'h-5 w-5 text-neutral-600',
           className
         )}
       />
@@ -287,7 +291,7 @@ function CheckoutButton() {
 
   return (
     <button
-      className="w-full rounded-full bg-black  text-white py-3 px-4 text-sm font-medium hover:opacity-90 transition-opacity disabled:opacity-50"
+      className="w-full rounded-full bg-black text-white py-3 px-4 text-sm font-medium hover:opacity-90 transition-opacity disabled:opacity-50"
       type="submit"
       disabled={pending}
     >
