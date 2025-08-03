@@ -43,3 +43,20 @@ export const removeFromCartMutation = /* GraphQL */ `
   }
   ${cartFragment}
 `;
+
+
+// New mutation to associate customer with cart
+export const cartBuyerIdentityUpdateMutation = /* GraphQL */ `
+  mutation cartBuyerIdentityUpdate($cartId: ID!, $buyerIdentity: CartBuyerIdentityInput!) {
+    cartBuyerIdentityUpdate(cartId: $cartId, buyerIdentity: $buyerIdentity) {
+      cart {
+        ...cart
+      }
+      userErrors {
+        field
+        message
+      }
+    }
+  }
+  ${cartFragment}
+`;

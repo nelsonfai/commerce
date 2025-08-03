@@ -5,6 +5,8 @@ import {
   createCart,
   getCart,
   removeFromCart,
+  getCustomerAccessToken,
+  associateCustomerWithCart,
   updateCart
 } from 'lib/shopify';
 import { revalidateTag } from 'next/cache';
@@ -109,12 +111,82 @@ export async function updateItemQuantity(
   }
 }
 
+
+// Updated redirect to checkout with customer association
+
+
+
 export async function redirectToCheckout() {
-  let cart = await getCart();
-  redirect(cart!.checkoutUrl);
+  // Check if user is logged in
+  const customerAccessToken = await getCustomerAccessToken();
+  
+  if (customerAccessToken) {
+    try {
+      // Associate customer with cart before checkout
+      await associateCustomerWithCart(customerAccessToken);
+      revalidateTag(TAGS.cart);
+    } catch (error) {
+      console.error('Error associating customer with cart:', error);
+    }
+  }
+
+  const cart = await getCart();
+  if (!cart) {
+    // If no cart, redirect to cart page
+    return
+    redirect('/cart');
+  }
+
+  redirect(cart.checkoutUrl);
 }
 
 export async function createCartAndSetCookie() {
-  let cart = await createCart();
-  (await cookies()).set('cartId', cart.id!);
+  try {
+    const customerAccessToken = await getCustomerAccessToken();
+    
+    let cart;
+    if (customerAccessToken) {
+      // Create cart with customer association if logged in
+      cart = await createCartWithCustomer(customerAccessToken);
+    } else {
+      // Create regular cart if not logged in
+      cart = await createCart();
+    }
+    
+    (await cookies()).set('cartId', cart.id!);
+    return cart;
+  } catch (error) {
+    console.error('Error creating cart:', error);
+    // Fallback to regular cart creation
+    const cart = await createCart();
+    (await cookies()).set('cartId', cart.id!);
+    return cart;
+  }
+}
+
+// New action to manually associate customer with existing cart (useful when user logs in)
+export async function associateCartWithLoggedInCustomer() {
+  try {
+    const customerAccessToken = await getCustomerAccessToken();
+    if (!customerAccessToken) {
+      return 'User not logged in';
+    }
+
+    const cart = await getCart();
+    if (!cart) {
+      return 'No cart found';
+    }
+
+    await associateCustomerWithCart(customerAccessToken);
+    revalidateTag(TAGS.cart);
+    
+    return 'success';
+  } catch (error) {
+    console.error('Error associating cart with customer:', error);
+    return 'Error associating cart with customer';
+  }
+}
+
+function createCartWithCustomer(customerAccessToken: string): any {
+  throw new Error('Function not implemented.');
 }

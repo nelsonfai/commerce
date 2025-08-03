@@ -17,8 +17,11 @@ import {
   addToCartMutation,
   createCartMutation,
   editCartItemsMutation,
-  removeFromCartMutation
+  removeFromCartMutation,
+  cartBuyerIdentityUpdateMutation
 } from './mutations/cart';
+
+
 import { getCartQuery } from './queries/cart';
 import {
   getCollectionProductsQuery,
@@ -598,4 +601,42 @@ export async function revalidate(req: NextRequest): Promise<NextResponse> {
   }
 
   return NextResponse.json({ status: 200, revalidated: true, now: Date.now() });
+}
+
+
+
+
+// Add to your existing types
+import {
+  ShopifyCartBuyerIdentityUpdateOperation,
+} from './types';
+
+// Add this new function to associate customer with existing cart
+export async function associateCustomerWithCart(customerAccessToken: string): Promise<Cart> {
+  const cartId = (await cookies()).get('cartId')?.value!;
+  
+  const res = await shopifyFetch<ShopifyCartBuyerIdentityUpdateOperation>({
+    query: cartBuyerIdentityUpdateMutation,
+    variables: {
+      cartId,
+      buyerIdentity: {
+        customerAccessToken
+      }
+    }
+  });
+
+  if (res.body.data.cartBuyerIdentityUpdate.userErrors.length > 0) {
+    throw new Error(
+      res.body.data.cartBuyerIdentityUpdate.userErrors[0]?.message
+    );
+  }
+  return reshapeCart(res.body.data.cartBuyerIdentityUpdate.cart);
+}
+
+
+
+// Helper function to get customer access token from cookies
+export async function getCustomerAccessToken(): Promise<string | null> {
+  const customerAccessToken = (await cookies()).get('customerAccessToken')?.value;
+  return customerAccessToken || null;
 }

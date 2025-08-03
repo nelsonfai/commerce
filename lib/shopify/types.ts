@@ -288,3 +288,24 @@ export type ShopifyProductsOperation = {
     sortKey?: string;
   };
 };
+
+
+// Add these to your existing ShopifyOperation types
+export type ShopifyCartBuyerIdentityUpdateOperation = {
+  data: {
+    cartBuyerIdentityUpdate: {
+      cart: ShopifyCart;
+      userErrors: Array<{
+        field: string[];
+        message: string;
+      }>;
+    };
+  };
+  variables: {
+    cartId: string;
+    buyerIdentity: {
+      customerAccessToken: string;
+    };
+  };
+};
+
