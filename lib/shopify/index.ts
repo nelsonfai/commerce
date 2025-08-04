@@ -385,7 +385,7 @@ export async function getCollectionProducts({
   }
 
   // Check if this is a hidden collection - if so, don't filter hidden products
-  const isHiddenCollection = collection.startsWith('hidden-');
+  const isHiddenCollection = collection.startsWith('hidden-') || collection !== '';
   
   return reshapeProducts(
     removeEdgesAndNodes(res.body.data.collection.products),
@@ -403,11 +403,8 @@ export async function getCollections(includeAllCategory = true): Promise<Collect
   });
 
   const shopifyCollections = removeEdgesAndNodes(res.body?.data?.collections);
-  //console.log('shopifyCollections', shopifyCollections);
   const reshapedCollections = reshapeCollections(shopifyCollections)
   .filter((collection) => !collection.handle.startsWith('hidden'))
-
-
   const collections = includeAllCategory
     ? [
         {

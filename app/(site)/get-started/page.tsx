@@ -8,7 +8,7 @@ export default async function SubscriptionBoxPage(): Promise<React.JSX.Element> 
   try {
     // Fetch subscription bundles and featured products
     const [subscriptionBundles, featuredProducts] = await Promise.all([
-      getCollectionProducts({ collection: 'hidden-subscription-bundles' }),
+      getCollectionProducts({ collection: 'hidden-box-subscription-bundles' }),
       getCollectionProducts({ collection: 'featured-snacks' })
     ])
 
