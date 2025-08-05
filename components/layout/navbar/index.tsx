@@ -10,6 +10,7 @@ import {
   CubeIcon,
   BeakerIcon,
   MagnifyingGlassIcon,
+  PuzzlePieceIcon
 } from '@heroicons/react/24/outline';
 import MobileMenu from './mobile-menu';
 import Search, { SearchSkeleton } from './search';
@@ -24,6 +25,7 @@ export async function Navbar() {
     { title: 'Store', path: '/store' },
     { title: 'Snack Boxes', path: '/get-started' },
     { title: 'Drinks', path: '/collection/drinks' },
+    { title: 'Game - Nyumly 54', path: '/games' },
   ];
 
   return (
@@ -140,6 +142,8 @@ function CategoryIcon({ index }: { index: number }) {
     <BuildingStorefrontIcon key="store" className="w-4 h-4 text-white" />, // Store
     <CubeIcon key="snacks" className="w-4 h-4 text-white" />, // Snack Boxes
     <BeakerIcon key="drinks" className="w-4 h-4 text-white" />, // Drinks
+    <PuzzlePieceIcon key="games" className="w-4 h-4 text-white" />, // Games
+    
   ];
   
   return icons[index] || icons[0];

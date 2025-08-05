@@ -35,7 +35,7 @@ export default async function SearchPage({ searchParams }: PageProps) {
   return (
     <>
       {searchValue ? (
-        <p className="mb-4 min-h-[70px]">
+        <p className="mb-4 min-h-[60vh]">
           {filteredProducts.length === 0
             ? 'There are no products that match '
             : `Showing ${filteredProducts.length} ${resultsText} for `}
