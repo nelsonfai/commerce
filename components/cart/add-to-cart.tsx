@@ -1,6 +1,6 @@
 'use client';
 
-import { MinusIcon, PlusIcon, ShoppingCartIcon } from '@heroicons/react/24/outline';
+import { MinusIcon, PlusIcon, ShoppingCartIcon,ArrowPathIcon } from '@heroicons/react/24/outline';
 import clsx from 'clsx';
 import { addItem, updateItemQuantity } from 'components/cart/actions';
 import { useProduct } from 'components/product/product-context';
@@ -142,6 +142,16 @@ function QuantityControls({
   );
 }
 
+const PlusIconWithLoading = ({ loading }: { loading: boolean }) => (
+  <>
+    {loading ? (
+      <ArrowPathIcon className="h-4 w-4 animate-spin" />
+    ) : (
+      <PlusIcon className="h-4 w-5" />
+    )}
+  </>
+);
+
 function AddToCartButton({
   availableForSale,
   selectedVariantId,
@@ -173,7 +183,7 @@ function AddToCartButton({
     return (
       <button disabled className={clsx(buttonClasses, disabledClasses)}>
         {compact ? (
-          <PlusIcon className="h-5 w-5" />
+          <PlusIconWithLoading loading={pending} />
         ) : (
           <>
             <span className="sm:hidden">
@@ -194,11 +204,11 @@ function AddToCartButton({
         className={clsx(buttonClasses, disabledClasses)}
       >
         {compact ? (
-          <PlusIcon className="h-5 w-5" />
+          <PlusIconWithLoading loading={pending} />
         ) : (
           <>
             <span>
-              <PlusIcon className="h-5 w-5" />
+            <PlusIconWithLoading loading={pending} />
             </span>
             <span>Add To Cart</span>
           </>
@@ -217,7 +227,7 @@ function AddToCartButton({
       })}
     >
       {compact ? (
-        <PlusIcon className="h-5 w-5" />
+        <PlusIconWithLoading loading={pending} />
       ) : (
         <>
           <span >
