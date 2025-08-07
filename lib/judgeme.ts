@@ -136,11 +136,6 @@ export async function createReview(
       id: productId,
     };
 
-    //console.log('Creating review with payload:', {
-      ...payload,
-      api_token: '[HIDDEN]',
-      email: '[HIDDEN]',
-    });
 
     const response = await fetch('https://judge.me/api/v1/reviews', {
       method: 'POST',
