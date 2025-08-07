@@ -1,8 +1,7 @@
 'use client';
 import React, { useState, useMemo } from 'react';
 import SnackModal from './snack-modal';
-import { SelectedItem, Snack } from 'types/snack';
-import Link from 'next/link';
+import { SelectedItem } from 'types/snack';
 import { AddToCart } from 'components/cart/add-to-cart';
 import { useRouter } from 'next/navigation';
 import { Product } from 'lib/shopify/types';
@@ -21,6 +20,7 @@ interface ProductCardProps {
   className?: string;
   cardStyle?: 'default' | 'featured';
   allowClick?: boolean;
+  openCart?:boolean;
 }
 
 const ProductCard: React.FC<ProductCardProps> = ({ 
@@ -31,7 +31,8 @@ const ProductCard: React.FC<ProductCardProps> = ({
   onUpdateQuantity,
   className = "",
   cardStyle = "default",
-  allowClick = true
+  allowClick = true,
+  openCart= true
 }) => {
   const [isModalOpen, setIsModalOpen] = useState(false);
   const router = useRouter();
@@ -242,7 +243,7 @@ const ProductCard: React.FC<ProductCardProps> = ({
               ) : (
                 <div className="flex items-center space-x-2 w-full">
                   <div className="flex-1">
-                    <AddToCart product={product as Product} compact={true} />
+                    <AddToCart product={product as Product} compact={true} openCart={openCart} />
                   </div>
                   <button
                     className="p-2 bg-slate-100 rounded-lg text-slate-700 hover:bg-slate-200 transition-colors border border-slate-200 flex items-center justify-center"

@@ -1,8 +1,8 @@
 'use client';
 
-import clsx from 'clsx';
 import { Dialog, Transition } from '@headlessui/react';
-import { ShoppingCartIcon, XMarkIcon,GiftIcon } from '@heroicons/react/24/outline';
+import { GiftIcon, ShoppingCartIcon, XMarkIcon } from '@heroicons/react/24/outline';
+import clsx from 'clsx';
 import LoadingDots from 'components/loading-dots';
 import Price from 'components/price';
 import { DEFAULT_OPTION } from 'lib/constants';
@@ -22,12 +22,12 @@ type MerchandiseSearchParams = {
 };
 
 export default function CartModal() {
-  const { cart, updateCartItem } = useCart();
+  const { cart, updateCartItem, shouldOpenCartOnUpdate } = useCart();
   const [isOpen, setIsOpen] = useState(false);
   const quantityRef = useRef(cart?.totalQuantity);
   const openCart = () => setIsOpen(true);
   const closeCart = () => setIsOpen(false);
-
+  //console.log('This is the modal should open cart on update', shouldOpenCartOnUpdate)
   useEffect(() => {
     if (!cart) {
       createCartAndSetCookie();
@@ -38,14 +38,18 @@ export default function CartModal() {
     if (
       cart?.totalQuantity &&
       cart?.totalQuantity !== quantityRef.current &&
-      cart?.totalQuantity > 0
+      cart?.totalQuantity > 0 &&
+      shouldOpenCartOnUpdate // Only open if the flag allows it
     ) {
       if (!isOpen) {
         setIsOpen(true);
       }
       quantityRef.current = cart?.totalQuantity;
+    } else if (cart?.totalQuantity !== quantityRef.current) {
+      // Update the ref even if we don't open the cart
+      quantityRef.current = cart?.totalQuantity;
     }
-  }, [isOpen, cart?.totalQuantity, quantityRef]);
+  }, [isOpen, cart?.totalQuantity, quantityRef, shouldOpenCartOnUpdate]);
 
   return (
     <>

@@ -582,6 +582,7 @@ export default function SubscriptionBoxClient({ subscriptionBoxes, featuredProdu
                     product={product}
                     showQuantityControls={true}
                     allowClick={false}
+                    openCart={false}
                   />
                 ))}
               </div>

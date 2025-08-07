@@ -188,18 +188,18 @@ export class LocalStorageAdapter implements StorageInterface {
 export class DatabaseAdapter implements StorageInterface {
   async saveGameState(sessionId: string, gameState: any): Promise<void> {
       // TODO: Implement database save
-      console.log('Saving to database:', sessionId, gameState);
+      //console.log('Saving to database:', sessionId, gameState);
   }
 
   async loadGameState(sessionId: string): Promise<any | null> {
       // TODO: Implement database load
-      console.log('Loading from database:', sessionId);
+      //console.log('Loading from database:', sessionId);
       return null;
   }
 
   async clearGameState(sessionId: string): Promise<void> {
       // TODO: Implement database clear
-      console.log('Clearing from database:', sessionId);
+      //console.log('Clearing from database:', sessionId);
   }
 
   async getAllSessions(): Promise<string[]> {
@@ -209,24 +209,24 @@ export class DatabaseAdapter implements StorageInterface {
 
   async getActiveSessionByEmail(email: string): Promise<string | null> {
       // TODO: Implement get active session by email
-      console.log('Getting active session for email:', email);
+      //console.log('Getting active session for email:', email);
       return null;
   }
 
   async getUserSessions(email: string): Promise<string[]> {
       // TODO: Implement get user sessions
-      console.log('Getting user sessions for email:', email);
+      //console.log('Getting user sessions for email:', email);
       return [];
   }
 
   async markSessionAsActive(email: string, sessionId: string): Promise<void> {
       // TODO: Implement mark session as active
-      console.log('Marking session as active:', email, sessionId);
+      //console.log('Marking session as active:', email, sessionId);
   }
 
   async clearUserActiveSessions(email: string): Promise<void> {
       // TODO: Implement clear user active sessions
-      console.log('Clearing user active sessions for email:', email);
+      //console.log('Clearing user active sessions for email:', email);
   }
 }
 

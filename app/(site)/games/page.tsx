@@ -397,8 +397,8 @@ const QuizGame: React.FC<QuizGameProps> = ({ initialGroupId, sessionId }: QuizGa
   }
   
   return (
-    <div className="min-h-screen flex justify-center mt-12 px-4 py-4">
-      <div className="w-full max-w-3xl">
+    <div className="min-h-screen flex justify-center px-4 py-4">
+      <div className="w-full max-w-2xl">
         <ProgressHeader
           currentQuestion={gameState.currentQuestion}
           totalQuestions={currentGroup.questions.length}

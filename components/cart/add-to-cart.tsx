@@ -1,6 +1,6 @@
 'use client';
 
-import { PlusIcon, MinusIcon,ShoppingCartIcon } from '@heroicons/react/24/outline';
+import { MinusIcon, PlusIcon, ShoppingCartIcon } from '@heroicons/react/24/outline';
 import clsx from 'clsx';
 import { addItem, updateItemQuantity } from 'components/cart/actions';
 import { useProduct } from 'components/product/product-context';
@@ -11,10 +11,12 @@ import { useCart } from './cart-context';
 
 function SubmitButton({ 
   type, 
-  compact = false 
+  compact = false , 
+  openCart = true 
 }: { 
   type: 'plus' | 'minus'; 
   compact?: boolean;
+  openCart?: boolean;
 }) {
   const { pending } = useFormStatus();
   
@@ -51,15 +53,18 @@ function EditItemQuantityButton({
   currentQuantity,
   type,
   optimisticUpdate,
-  compact = false
+  compact = false,
+  openCart = true
 }: {
   merchandiseId: string;
   currentQuantity: number;
   type: 'plus' | 'minus';
   optimisticUpdate: any;
   compact?: boolean;
+  openCart?: boolean;
 }) {
   const [message, formAction] = useActionState(updateItemQuantity, null);
+  const { performCartAction } = useCart();
   const payload = {
     merchandiseId,
     quantity: type === 'plus' ? currentQuantity + 1 : currentQuantity - 1
@@ -69,11 +74,13 @@ function EditItemQuantityButton({
   return (
     <form
       action={async () => {
-        optimisticUpdate(payload.merchandiseId, type);
-        updateItemQuantityAction();
+        performCartAction(() => {
+          optimisticUpdate(payload.merchandiseId, type);
+          updateItemQuantityAction();
+        }, openCart);
       }}
     >
-      <SubmitButton type={type} compact={compact} />
+      <SubmitButton type={type} compact={compact} openCart={openCart} />
       <p aria-live="polite" className="sr-only" role="status">
         {message}
       </p>
@@ -85,12 +92,14 @@ function QuantityControls({
   merchandiseId,
   quantity,
   optimisticUpdate,
-  compact = false
+  compact = false,
+  openCart = true
 }: {
   merchandiseId: string;
   quantity: number;
   optimisticUpdate: any;
   compact?: boolean;
+  openCart?: boolean;
 }) {
   const containerClasses = clsx(
     "flex items-center rounded-full border border-neutral-200 dark:border-neutral-700",
@@ -108,6 +117,7 @@ function QuantityControls({
         type="minus"
         optimisticUpdate={optimisticUpdate}
         compact={compact}
+        openCart={openCart}
       />
       
       <div className={clsx(
@@ -126,6 +136,7 @@ function QuantityControls({
         type="plus"
         optimisticUpdate={optimisticUpdate}
         compact={compact}
+        openCart={openCart}
       />
     </div>
   );
@@ -134,11 +145,13 @@ function QuantityControls({
 function AddToCartButton({
   availableForSale,
   selectedVariantId,
-  compact = false
+  compact = false,
+  openCart = true,
 }: {
   availableForSale: boolean;
   selectedVariantId: string | undefined;
   compact?: boolean;
+  openCart?: boolean;
 }) {
   const { pending } = useFormStatus();
   
@@ -219,17 +232,19 @@ function AddToCartButton({
 
 export function AddToCart({
   product,
-  compact = false
+  compact = false,
+  openCart = true
 }: {
   product: Product;
   compact?: boolean;
-  className?: string
+  className?: string;
+  openCart?: boolean;
 }) {
   const { variants, availableForSale } = product;
-  const { updateCartItem, cart } = useCart();
+  const { updateCartItem, cart, performCartAction } = useCart();
   const { state } = useProduct();
   const [message, formAction] = useActionState(addItem, null);
-
+//console.log('I have the message to open the cart', openCart)
   const variant = variants.find((variant: ProductVariant) =>
     variant.selectedOptions.every(
       (option) => option.value === state[option.name.toLowerCase()]
@@ -238,6 +253,7 @@ export function AddToCart({
   const defaultVariantId = variants.length === 1 ? variants[0]?.id : undefined;
   const selectedVariantId = variant?.id || defaultVariantId;
   const addItemAction = formAction.bind(null, selectedVariantId);
+  
 
   // Find current quantity in cart for this variant
   const cartItem = useMemo(() => {
@@ -256,6 +272,7 @@ export function AddToCart({
           quantity={currentQuantity}
           optimisticUpdate={updateCartItem}
           compact={compact}
+          openCart={openCart}
         />
         <p aria-live="polite" className="sr-only" role="status">
           {message}
@@ -266,11 +283,18 @@ export function AddToCart({
 
   // Show add to cart button if item is not in cart
   return (
-    <form action={addItemAction}>
+    <form 
+      action={async () => {
+        performCartAction(() => {
+          addItemAction();
+        }, openCart);
+      }}
+    >
       <AddToCartButton
         availableForSale={availableForSale}
         selectedVariantId={selectedVariantId}
         compact={compact}
+        openCart={openCart}
       />
       <p aria-live="polite" className="sr-only" role="status">
         {message}

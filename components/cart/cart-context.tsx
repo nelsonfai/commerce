@@ -11,7 +11,8 @@ import React, {
   use,
   useContext,
   useMemo,
-  useOptimistic
+  useOptimistic,
+  useState
 } from 'react';
 
 type UpdateType = 'plus' | 'minus' | 'delete';
@@ -28,6 +29,8 @@ type CartAction =
 
 type CartContextType = {
   cartPromise: Promise<Cart | undefined>;
+  shouldOpenCartOnUpdate: boolean;
+  setShouldOpenCartOnUpdate: (shouldOpen: boolean) => void;
 };
 
 const CartContext = createContext<CartContextType | undefined>(undefined);
@@ -93,8 +96,7 @@ function createOrUpdateCartItem(
         featuredImage: product.featuredImage
       }
     },
-    attributes:[]
-
+    attributes: []
   };
 }
 
@@ -199,8 +201,16 @@ export function CartProvider({
   children: React.ReactNode;
   cartPromise: Promise<Cart | undefined>;
 }) {
+  const [shouldOpenCartOnUpdate, setShouldOpenCartOnUpdate] = useState(true);
+
   return (
-    <CartContext.Provider value={{ cartPromise }}>
+    <CartContext.Provider 
+      value={{ 
+        cartPromise, 
+        shouldOpenCartOnUpdate, 
+        setShouldOpenCartOnUpdate 
+      }}
+    >
       {children}
     </CartContext.Provider>
   );
@@ -229,12 +239,26 @@ export function useCart() {
     updateOptimisticCart({ type: 'ADD_ITEM', payload: { variant, product } });
   };
 
+
+  const performCartAction = (
+    action: () => void, 
+    shouldOpenCart: boolean = true
+  ) => {
+    context.setShouldOpenCartOnUpdate(shouldOpenCart);
+    action();
+  };
+  
+  
+
   return useMemo(
     () => ({
       cart: optimisticCart,
       updateCartItem,
-      addCartItem
+      addCartItem,
+      performCartAction,
+      shouldOpenCartOnUpdate: context.shouldOpenCartOnUpdate,
+      setShouldOpenCartOnUpdate: context.setShouldOpenCartOnUpdate
     }),
-    [optimisticCart]
+    [optimisticCart, context.shouldOpenCartOnUpdate]
   );
 }

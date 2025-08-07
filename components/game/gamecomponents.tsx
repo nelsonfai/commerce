@@ -32,7 +32,7 @@ export const EmailPrompt: React.FC<EmailPromptProps> = ({
    groupTitle,
    groupDescription
 }) => (
-  <div className="min-h-screen flex justify-center mt-12 px-4 py-8 bg-gradient-to-br from-slate-50 to-white">
+  <div className="min-h-screen flex justify-center mt-4 px-4 py-8 ">
     <div className="w-full max-w-md">
       <div className="text-center mb-8">
         <div className="mb-4">

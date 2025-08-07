@@ -1,5 +1,5 @@
-import { NextRequest, NextResponse } from 'next/server';
 import { getProductReviews } from 'lib/judgeme';
+import { NextRequest, NextResponse } from 'next/server';
 
 export async function GET(
   request: NextRequest,
@@ -9,7 +9,7 @@ export async function GET(
     const page = parseInt(searchParams.get('page') || '1', 10);
     const perPage = parseInt(searchParams.get('per_page') || '10', 10);
     const handle = searchParams.get('handle') || '';
-    console.log('Get reviews request:', { handle, page, perPage });
+    //console.log('Get reviews request:', { handle, page, perPage });
 
     const data = await getProductReviews(handle, page, perPage);
 

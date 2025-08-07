@@ -1,65 +1,65 @@
 // lib/shopify/index.ts
 import {
-  HIDDEN_PRODUCT_TAG,
-  SHOPIFY_GRAPHQL_API_ENDPOINT,
-  TAGS
+    HIDDEN_PRODUCT_TAG,
+    SHOPIFY_GRAPHQL_API_ENDPOINT,
+    TAGS
 } from 'lib/constants';
 import { isShopifyError } from 'lib/type-guards';
 import { ensureStartsWith } from 'lib/utils';
 import {
-  revalidateTag,
-  unstable_cacheTag as cacheTag,
-  unstable_cacheLife as cacheLife
+    unstable_cacheLife as cacheLife,
+    unstable_cacheTag as cacheTag,
+    revalidateTag
 } from 'next/cache';
 import { cookies, headers } from 'next/headers';
 import { NextRequest, NextResponse } from 'next/server';
 import {
-  addToCartMutation,
-  createCartMutation,
-  editCartItemsMutation,
-  removeFromCartMutation,
-  cartBuyerIdentityUpdateMutation
+    addToCartMutation,
+    cartBuyerIdentityUpdateMutation,
+    createCartMutation,
+    editCartItemsMutation,
+    removeFromCartMutation
 } from './mutations/cart';
 
 
 import { getCartQuery } from './queries/cart';
 import {
-  getCollectionProductsQuery,
-  getCollectionQuery,
-  getCollectionsQuery
+    getCollectionProductsQuery,
+    getCollectionQuery,
+    getCollectionsQuery
 } from './queries/collection';
 import { getMenuQuery } from './queries/menu';
 import { getPageQuery, getPagesQuery } from './queries/page';
 import {
-  getProductQuery,
-  getProductRecommendationsQuery,
-  getProductsQuery
+    getProductQuery,
+    getProductRecommendationsQuery,
+    getProductsQuery
 } from './queries/product';
 import {
-  Cart,
-  Collection,
-  Connection,
-  Image,
-  Menu,
-  Page,
-  Product,
-  ShopifyAddToCartOperation,
-  ShopifyCart,
-  ShopifyCartOperation,
-  ShopifyCollection,
-  ShopifyCollectionOperation,
-  ShopifyCollectionProductsOperation,
-  ShopifyCollectionsOperation,
-  ShopifyCreateCartOperation,
-  ShopifyMenuOperation,
-  ShopifyPageOperation,
-  ShopifyPagesOperation,
-  ShopifyProduct,
-  ShopifyProductOperation,
-  ShopifyProductRecommendationsOperation,
-  ShopifyProductsOperation,
-  ShopifyRemoveFromCartOperation,
-  ShopifyUpdateCartOperation
+    Cart,
+    Collection,
+    Connection,
+    Image,
+    Menu,
+    Page,
+    Product,
+    ShopifyAddToCartOperation,
+    ShopifyCart,
+    ShopifyCartOperation,
+    ShopifyCollection,
+    ShopifyCollectionOperation,
+    ShopifyCollectionProductsOperation,
+    ShopifyCollectionsOperation,
+    ShopifyCreateCartOperation,
+    ShopifyMenuOperation,
+    ShopifyPageOperation,
+    ShopifyPagesOperation,
+    ShopifyProduct,
+    ShopifyProductOperation,
+    ShopifyProductRecommendationsOperation,
+    ShopifyProductsOperation,
+    ShopifyRemoveFromCartOperation,
+    ShopifyUpdateCartOperation
 } from './types';
 
 const domain = process.env.SHOPIFY_STORE_DOMAIN
@@ -344,7 +344,7 @@ export async function fgetCollectionProducts({
   });
 
   if (!res.body.data.collection) {
-    console.log(`No collection found for \`${collection}\``);
+    //console.log(`No collection found for \`${collection}\``);
     return [];
   }
 
@@ -380,7 +380,7 @@ export async function getCollectionProducts({
   });
 
   if (!res.body.data.collection) {
-    console.log(`No collection found for \`${collection}\``);
+    //console.log(`No collection found for \`${collection}\``);
     return [];
   }
 
@@ -605,7 +605,7 @@ export async function revalidate(req: NextRequest): Promise<NextResponse> {
 
 // Add to your existing types
 import {
-  ShopifyCartBuyerIdentityUpdateOperation,
+    ShopifyCartBuyerIdentityUpdateOperation,
 } from './types';
 
 // Add this new function to associate customer with existing cart

@@ -167,5 +167,17 @@ export const QUESTION_GROUPS: QuestionGroup[] = [
           description: '+ Mini coupon sent to your email',
           level: 1
       }
-  }
+  },  {
+    groupId: 'new-spice-routes',
+    title: 'LETS PLAY BALL',
+    description: 'Explore 2 countries, unlock food knowledge, and maybe win some snacks.',
+    questions: spiceRoutesQuestions,
+    requiredCorrect: 10,
+    maxWrong: 3,
+    reward: {
+        title: 'Taster\'s Passport – Level 1',
+        description: '+ Mini coupon sent to your email',
+        level: 1
+    }
+}
 ];
